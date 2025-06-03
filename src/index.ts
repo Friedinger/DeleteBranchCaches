@@ -17,6 +17,7 @@ async function main(): Promise<void> {
 	core.info(
 		`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`
 	);
+	let totalSize = 0;
 	for (const cache of caches.data.actions_caches) {
 		if (!cache.id) return;
 		await octokit.rest.actions.deleteActionsCacheById({
@@ -24,17 +25,27 @@ async function main(): Promise<void> {
 			repo: context.repo.repo,
 			cache_id: cache.id,
 		});
-		const message = [
-			"🗑️ Deleted cache:",
-			`  - ID: ${cache.id}`,
-			`  - Key: ${cache.key}`,
-			`  - Ref: ${cache.ref}`,
-			`  - Created at: ${new Date(cache.created_at!).toLocaleString()}`,
-			`  - Size: ${(cache.size_in_bytes! / (1024 * 1024)).toFixed(2)} MB`,
-		];
-		core.info(message.join("\n"));
+		totalSize += cache.size_in_bytes ?? 0;
+		const message = `🗑️ Deleted cache ${cache.id} with key "${
+			cache.key
+		}" on ref "${cache.ref}", created at ${new Date(cache.created_at!)
+			.toLocaleString()
+			.replace(/,/g, "")}`;
+		core.info(message);
 	}
-	core.info(`✅ All caches for ref "${ref}" have been deleted successfully.`);
+	core.info(
+		`✅ All caches for ref "${ref}" with a total size of ${formatSize(
+			totalSize
+		)} have been deleted successfully.`
+	);
+}
+
+function formatSize(bytes: number): string {
+	if (bytes >= 1024 * 1024 * 1024)
+		return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+	if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+	if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+	return `${bytes} B`;
 }
 
 main().catch((err) => core.setFailed(`❌ ${err.message}`));

@@ -29968,6 +29968,7 @@ const github = __importStar(__nccwpck_require__(3228));
 const rest_1 = __nccwpck_require__(6145);
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         const token = core.getInput("github-token", { required: true });
         const ref = core.getInput("ref", { required: true });
         const octokit = new rest_1.Octokit({ auth: token });
@@ -29979,6 +29980,7 @@ function main() {
         });
         const count = caches.data.actions_caches.length;
         core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
+        let totalSize = 0;
         for (const cache of caches.data.actions_caches) {
             if (!cache.id)
                 return;
@@ -29987,18 +29989,23 @@ function main() {
                 repo: context.repo.repo,
                 cache_id: cache.id,
             });
-            const message = [
-                "🗑️ Deleted cache:",
-                `  - ID: ${cache.id}`,
-                `  - Key: ${cache.key}`,
-                `  - Ref: ${cache.ref}`,
-                `  - Created at: ${new Date(cache.created_at).toLocaleString()}`,
-                `  - Size: ${(cache.size_in_bytes / (1024 * 1024)).toFixed(2)} MB`,
-            ];
-            core.info(message.join("\n"));
+            totalSize += (_a = cache.size_in_bytes) !== null && _a !== void 0 ? _a : 0;
+            const message = `🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${new Date(cache.created_at)
+                .toLocaleString()
+                .replace(/,/g, "")}`;
+            core.info(message);
         }
-        core.info(`✅ All caches for ref "${ref}" have been deleted successfully.`);
+        core.info(`✅ All caches for ref "${ref}" with a total size of ${formatSize(totalSize)} have been deleted successfully.`);
     });
+}
+function formatSize(bytes) {
+    if (bytes >= 1024 * 1024 * 1024)
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    if (bytes >= 1024 * 1024)
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    if (bytes >= 1024)
+        return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${bytes} B`;
 }
 main().catch((err) => core.setFailed(`❌ ${err.message}`));
 
