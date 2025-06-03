@@ -7,19 +7,22 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
             - name: Create test file
               run: |
                   mkdir -p test-cache
                   echo "Test hash: ${{ github.sha }}" > test-cache/test.txt
+
+            - name: List workspace contents
+              run: ls -l
 
             - name: Create cache
               uses: actions/cache@v4
               with:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}
-
-            - name: Checkout repository
-              uses: actions/checkout@v4
 
             - name: Delete branch caches
               uses: ./
