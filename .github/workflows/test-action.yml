@@ -15,9 +15,6 @@ jobs:
                   mkdir -p test-cache
                   echo "Test hash: ${{ github.sha }}" > test-cache/test.txt
 
-            - name: List workspace contents
-              run: ls -l
-
             - name: Create cache
               uses: actions/cache@v4
               with:
