@@ -3,23 +3,26 @@ name: Test Action
 on: [push]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+    test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Create test file
-        run: |
-          mkdir -p test-cache
-          echo "Test hash: ${{ github.sha }}" > test-cache/test.txt
+        steps:
+            - name: Create test file
+              run: |
+                  mkdir -p test-cache
+                  echo "Test hash: ${{ github.sha }}" > test-cache/test.txt
 
-      - name: Create cache
-        uses: actions/cache@v4
-        with:
-          path: test-cache
-          key: test-cache-${{ github.run_id }}
+            - name: Create cache
+              uses: actions/cache@v4
+              with:
+                  path: test-cache
+                  key: test-cache-${{ github.run_id }}
 
-      - name: Delete branch caches
-        uses: ./
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.ref }}
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Delete branch caches
+              uses: ./
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: ${{ github.ref }}
