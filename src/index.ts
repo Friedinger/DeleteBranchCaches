@@ -13,8 +13,9 @@ async function main(): Promise<void> {
 		repo: context.repo.repo,
 		ref: ref,
 	});
+	const count = caches.data.actions_caches.length;
 	core.info(
-		`Found ${caches.data.actions_caches.length} caches for ref: ${ref}`
+		`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`
 	);
 	for (const cache of caches.data.actions_caches) {
 		if (!cache.id) return;
@@ -23,8 +24,16 @@ async function main(): Promise<void> {
 			repo: context.repo.repo,
 			cache_id: cache.id,
 		});
-		core.info(`Cleared cache: ${cache.id}`);
+		core.info(
+			`🗑️ Deleted cache:
+			  - ID: ${cache.id}
+			  - Key: ${cache.key}
+			  - Ref: ${cache.ref}
+			  - Created at: ${new Date(cache.created_at!).toLocaleString()}
+			  - Size: ${(cache.size_in_bytes! / (1024 * 1024)).toFixed(2)} MB`
+		);
 	}
+	core.info(`✅ All caches for ref "${ref}" have been deleted successfully.`);
 }
 
-main().catch((err) => core.setFailed(err.message));
+main().catch((err) => core.setFailed(`❌ ${err.message}`));
