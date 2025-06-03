@@ -1,7 +1,7 @@
 {
 	"name": "delete-branch-caches",
 	"version": "1.0.0",
-	"description": "",
+	"description": "A GitHub Action to delete all caches associated with a specific branch reference in your repository.",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "npx ncc build src/index.ts -o dist --license licenses.txt",
@@ -12,7 +12,7 @@
 		"url": "git+https://github.com/Friedinger/DeleteBranchCaches.git"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Friedinger",
 	"license": "ISC",
 	"bugs": {
 		"url": "https://github.com/Friedinger/DeleteBranchCaches/issues"
