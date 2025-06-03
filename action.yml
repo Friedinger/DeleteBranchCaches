@@ -1,0 +1,20 @@
+name: Delete Branch Caches
+description: Delete caches for a specific branch.
+
+branding:
+  icon: trash
+  color: blue
+
+inputs:
+  github-token:
+    description: GitHub token to use for authentication
+    required: true
+    default: ${{ github.token }}
+  ref:
+    description: The branch reference to delete caches for (e.g., 'refs/heads/main')
+    required: true
+    default: ${{ github.ref }}
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
