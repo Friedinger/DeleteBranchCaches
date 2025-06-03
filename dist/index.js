@@ -29987,12 +29987,15 @@ function main() {
                 repo: context.repo.repo,
                 cache_id: cache.id,
             });
-            core.info(`🗑️ Deleted cache:
-			  - ID: ${cache.id}
-			  - Key: ${cache.key}
-			  - Ref: ${cache.ref}
-			  - Created at: ${new Date(cache.created_at).toLocaleString()}
-			  - Size: ${(cache.size_in_bytes / (1024 * 1024)).toFixed(2)} MB`);
+            const message = [
+                "🗑️ Deleted cache:",
+                `  - ID: ${cache.id}`,
+                `  - Key: ${cache.key}`,
+                `  - Ref: ${cache.ref}`,
+                `  - Created at: ${new Date(cache.created_at).toLocaleString()}`,
+                `  - Size: ${(cache.size_in_bytes / (1024 * 1024)).toFixed(2)} MB`,
+            ];
+            core.info(message.join("\n"));
         }
         core.info(`✅ All caches for ref "${ref}" have been deleted successfully.`);
     });
