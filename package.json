@@ -4,7 +4,8 @@
 	"description": "A GitHub Action to delete all caches associated with a specific branch reference in your repository.",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "npx ncc build src/index.ts -o dist --license licenses.txt"
+		"build": "npx ncc build src/index.ts -o dist --license licenses.txt",
+		"prepare": "husky"
 	},
 	"repository": {
 		"type": "git",
@@ -24,6 +25,7 @@
 	},
 	"devDependencies": {
 		"@vercel/ncc": "^0.38.3",
+		"husky": "^9.1.7",
 		"typescript": "^5.8.3"
 	}
 }
