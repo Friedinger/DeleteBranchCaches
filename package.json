@@ -4,8 +4,7 @@
 	"description": "A GitHub Action to delete all caches associated with a specific branch reference in your repository.",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "npx ncc build src/index.ts -o dist --license licenses.txt",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"build": "npx ncc build src/index.ts -o dist --license licenses.txt"
 	},
 	"repository": {
 		"type": "git",
