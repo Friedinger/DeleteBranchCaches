@@ -49,8 +49,8 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
 
-	permissions:
-  		actions: write
+  permissions:
+      actions: write
 
     steps:
       - uses: actions/checkout@v4
