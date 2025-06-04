@@ -24,8 +24,22 @@ jobs:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}
 
-            - name: Delete branch caches
+            - name: Delete current branch caches
               uses: ./
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   ref: ${{ github.ref }}
+
+            - name: Delete list branch caches
+              uses: ./
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: |
+                      - refs/heads/branch-1
+                      - refs/heads/branch-2
+
+            - name: Delete list inline branch caches
+              uses: ./
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: "[refs/heads/branch-1, refs/heads/branch-2]"

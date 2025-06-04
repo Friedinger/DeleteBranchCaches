@@ -30,10 +30,10 @@ This is required to allow the action to delete caches.
 
 ## Inputs
 
-| Name         | Description                                                  | Required | Default               |
-| ------------ | ------------------------------------------------------------ | -------- | --------------------- |
-| github-token | GitHub token to use for authentication                       | true     | `${{ github.token }}` |
-| ref          | The branch ref to delete caches for (e.g. `refs/heads/main`) | true     | `${{ github.ref }}`   |
+| Name         | Description                                                                                           | Required | Default               |
+| ------------ | ----------------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| github-token | GitHub token to use for authentication                                                                | true     | `${{ github.token }}` |
+| ref          | The branches ref to delete caches for (e.g. `refs/heads/main`), can be a single string or a yaml list | true     | `${{ github.ref }}`   |
 
 ## Example Workflow
 
