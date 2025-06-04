@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Delete branch caches
-        uses: Friedinger/DeleteBranchCaches@v1
+        uses: Friedinger/DeleteBranchCaches@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
