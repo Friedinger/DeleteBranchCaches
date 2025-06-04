@@ -35,6 +35,41 @@ This is required to allow the action to delete caches.
 | github-token | GitHub token to use for authentication                                                                | true     | `${{ github.token }}` |
 | ref          | The branches ref to delete caches for (e.g. `refs/heads/main`), can be a single string or a yaml list | true     | `${{ github.ref }}`   |
 
+#### Notes
+
+-   You can leave out both inputs to use the default values, which will delete caches for the current branch of the workflow.
+-   But it is recommended to always specify the `github-token` input for clarity and to avoid issues with permissions.
+
+### Input options for `ref`
+
+You can provide the `ref` input in several ways, depending on your use case and YAML syntax. All of the following variants are supported:
+
+#### Single branch ref
+
+```yaml
+ref: refs/heads/main
+```
+
+#### Multiple branch refs as YAML list
+
+```yaml
+ref: |
+    refs/heads/branch-1
+    refs/heads/branch-2
+```
+
+#### Multiple branch refs as array in string
+
+```yaml
+ref: "['refs/heads/branch-1', 'refs/heads/branch-2']"
+```
+
+#### Notes
+
+-   The action automatically detects the format and processes all variants correctly.
+-   For lists, the YAML list or array syntax is recommended for best readability.
+-   Sadly, directly passing an array like `ref: [refs/heads/branch-1, refs/heads/branch-2]` does not work due to GitHub only supporting strings for inputs.
+
 ## Example Workflow
 
 ```yaml
