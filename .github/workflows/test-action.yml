@@ -30,6 +30,9 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   ref: ${{ github.ref }}
 
+            - name: Delete default branch caches
+              uses: ./
+
             - name: Delete list branch caches
               uses: ./
               with:
