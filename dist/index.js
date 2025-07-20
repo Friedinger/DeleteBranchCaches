@@ -29970,6 +29970,7 @@ const core = __importStar(__nccwpck_require__(7484));
 const github = __importStar(__nccwpck_require__(3228));
 const rest_1 = __nccwpck_require__(6145);
 const yaml_1 = __importDefault(__nccwpck_require__(8815));
+const package_json_1 = __importDefault(__nccwpck_require__(8330));
 let octokit;
 main().catch((err) => core.setFailed(`❌ ${err.message}`));
 function main() {
@@ -29978,6 +29979,7 @@ function main() {
         const refsInput = core.getInput("ref", { required: true });
         const refs = parseRefs(refsInput);
         octokit = new rest_1.Octokit({ auth: token });
+        core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
         let deletedSize = 0;
         for (const ref of refs) {
             deletedSize += yield deleteCachesForRef(ref);
@@ -44466,6 +44468,14 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 );
 
 
+
+/***/ }),
+
+/***/ 8330:
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.0.0","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt","prepare":"husky"},"repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"keywords":[],"author":"Friedinger","license":"MIT","bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","dependencies":{"@actions/core":"^1.11.1","@actions/github":"^6.0.1","@octokit/rest":"^22.0.0","yaml":"^2.8.0"},"devDependencies":{"@vercel/ncc":"^0.38.3","husky":"^9.1.7","typescript":"^5.8.3"}}');
 
 /***/ })
 

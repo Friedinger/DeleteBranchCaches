@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import yaml from "yaml";
+import packageJson from "../package.json";
 
 type Cache = Awaited<
 	ReturnType<Octokit["rest"]["actions"]["getActionsCacheList"]>
@@ -16,6 +17,9 @@ async function main(): Promise<void> {
 	const refsInput = core.getInput("ref", { required: true });
 	const refs = parseRefs(refsInput);
 	octokit = new Octokit({ auth: token });
+	core.info(
+		`🛠️ Running Friedinger/DeleteBranchCaches@v${packageJson.version}`
+	);
 
 	let deletedSize = 0;
 	for (const ref of refs) {
