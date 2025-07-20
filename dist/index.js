@@ -29970,63 +29970,77 @@ const core = __importStar(__nccwpck_require__(7484));
 const github = __importStar(__nccwpck_require__(3228));
 const rest_1 = __nccwpck_require__(6145);
 const yaml_1 = __importDefault(__nccwpck_require__(8815));
+let octokit;
+main().catch((err) => core.setFailed(`❌ ${err.message}`));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         const token = core.getInput("github-token", { required: true });
         const refsInput = core.getInput("ref", { required: true });
-        let refs;
-        const refsParsed = yaml_1.default.parse(refsInput);
-        if (Array.isArray(refsParsed)) {
-            refs = refsParsed
-                .map((r) => String(r).trim())
-                .filter((r) => r.length > 0);
-        }
-        else if (typeof refsParsed === "string") {
-            refs = [refsParsed.trim()];
-        }
-        else {
-            throw new Error("ref input must be a string or array");
-        }
-        const octokit = new rest_1.Octokit({ auth: token });
-        const context = github.context;
-        let totalSize = 0;
+        const refs = parseRefs(refsInput);
+        octokit = new rest_1.Octokit({ auth: token });
+        let deletedSize = 0;
         for (const ref of refs) {
-            const caches = yield octokit.rest.actions.getActionsCacheList({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: ref,
-            });
-            const count = caches.data.actions_caches.length;
-            core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
-            for (const cache of caches.data.actions_caches) {
-                if (!cache.id)
-                    continue;
-                yield octokit.rest.actions.deleteActionsCacheById({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    cache_id: cache.id,
-                });
-                totalSize += (_a = cache.size_in_bytes) !== null && _a !== void 0 ? _a : 0;
-                const message = `🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${new Date(cache.created_at)
-                    .toLocaleString()
-                    .replace(/,/g, "")}`;
-                core.info(message);
-            }
+            deletedSize += yield deleteCachesForRef(ref);
         }
-        core.info(`✅ All caches with a total size of ${formatSize(totalSize)} have been deleted successfully.`);
+        core.info(`✅ All caches with a total size of ${formatSize(deletedSize)} have been deleted successfully.`);
     });
 }
-function formatSize(bytes) {
-    if (bytes >= 1024 * 1024 * 1024)
-        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-    if (bytes >= 1024 * 1024)
-        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-    if (bytes >= 1024)
-        return `${(bytes / 1024).toFixed(2)} KB`;
-    return `${bytes} B`;
+function deleteCachesForRef(ref) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const caches = yield octokit.rest.actions.getActionsCacheList({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            ref: ref,
+        });
+        const count = caches.data.actions_caches.length;
+        let deletedSize = 0;
+        core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
+        for (const cache of caches.data.actions_caches) {
+            deletedSize += yield deleteCache(cache);
+        }
+        return deletedSize;
+    });
 }
-main().catch((err) => core.setFailed(`❌ ${err.message}`));
+function deleteCache(cache) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        if (!cache.id)
+            return 0;
+        yield octokit.rest.actions.deleteActionsCacheById({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            cache_id: cache.id,
+        });
+        core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at)}`);
+        return (_a = cache.size_in_bytes) !== null && _a !== void 0 ? _a : 0;
+    });
+}
+function parseRefs(refsInput) {
+    const refsParsed = yaml_1.default.parse(refsInput);
+    if (Array.isArray(refsParsed)) {
+        return refsParsed
+            .map((ref) => String(ref).trim())
+            .filter((ref) => ref.length > 0);
+    }
+    else if (typeof refsParsed === "string") {
+        return [refsParsed.trim()];
+    }
+    else {
+        throw new Error("ref input must be a string or array");
+    }
+}
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleString().replace(/,/g, "");
+}
+function formatSize(bytes) {
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let i = 0;
+    while (bytes >= 1024 && i < units.length - 1) {
+        bytes /= 1024;
+        i++;
+    }
+    return `${bytes.toFixed(2)} ${units[i]}`;
+}
 
 
 /***/ }),

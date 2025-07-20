@@ -3,64 +3,86 @@ import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import yaml from "yaml";
 
+type Cache = Awaited<
+	ReturnType<Octokit["rest"]["actions"]["getActionsCacheList"]>
+>["data"]["actions_caches"][number];
+
+let octokit: Octokit;
+
+main().catch((err) => core.setFailed(`❌ ${err.message}`));
+
 async function main(): Promise<void> {
 	const token = core.getInput("github-token", { required: true });
 	const refsInput = core.getInput("ref", { required: true });
-	let refs: string[];
-	const refsParsed = yaml.parse(refsInput);
-	if (Array.isArray(refsParsed)) {
-		refs = refsParsed
-			.map((r: any) => String(r).trim())
-			.filter((r: string) => r.length > 0);
-	} else if (typeof refsParsed === "string") {
-		refs = [refsParsed.trim()];
-	} else {
-		throw new Error("ref input must be a string or array");
-	}
+	const refs = parseRefs(refsInput);
+	octokit = new Octokit({ auth: token });
 
-	const octokit = new Octokit({ auth: token });
-	const context = github.context;
-
-	let totalSize = 0;
+	let deletedSize = 0;
 	for (const ref of refs) {
-		const caches = await octokit.rest.actions.getActionsCacheList({
-			owner: context.repo.owner,
-			repo: context.repo.repo,
-			ref: ref,
-		});
-		const count = caches.data.actions_caches.length;
-		core.info(
-			`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`
-		);
-		for (const cache of caches.data.actions_caches) {
-			if (!cache.id) continue;
-			await octokit.rest.actions.deleteActionsCacheById({
-				owner: context.repo.owner,
-				repo: context.repo.repo,
-				cache_id: cache.id,
-			});
-			totalSize += cache.size_in_bytes ?? 0;
-			const message = `🗑️ Deleted cache ${cache.id} with key "${
-				cache.key
-			}" on ref "${cache.ref}", created at ${new Date(cache.created_at!)
-				.toLocaleString()
-				.replace(/,/g, "")}`;
-			core.info(message);
-		}
+		deletedSize += await deleteCachesForRef(ref);
 	}
 	core.info(
 		`✅ All caches with a total size of ${formatSize(
-			totalSize
+			deletedSize
 		)} have been deleted successfully.`
 	);
 }
 
-function formatSize(bytes: number): string {
-	if (bytes >= 1024 * 1024 * 1024)
-		return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-	if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-	if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-	return `${bytes} B`;
+async function deleteCachesForRef(ref: string): Promise<number> {
+	const caches = await octokit.rest.actions.getActionsCacheList({
+		owner: github.context.repo.owner,
+		repo: github.context.repo.repo,
+		ref: ref,
+	});
+	const count = caches.data.actions_caches.length;
+	let deletedSize = 0;
+	core.info(
+		`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`
+	);
+	for (const cache of caches.data.actions_caches) {
+		deletedSize += await deleteCache(cache);
+	}
+	return deletedSize;
 }
 
-main().catch((err) => core.setFailed(`❌ ${err.message}`));
+async function deleteCache(cache: Cache): Promise<number> {
+	if (!cache.id) return 0;
+	await octokit.rest.actions.deleteActionsCacheById({
+		owner: github.context.repo.owner,
+		repo: github.context.repo.repo,
+		cache_id: cache.id,
+	});
+	core.info(
+		`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
+			cache.ref
+		}", created at ${formatDate(cache.created_at!)}`
+	);
+	return cache.size_in_bytes ?? 0;
+}
+
+function parseRefs(refsInput: string): string[] {
+	const refsParsed = yaml.parse(refsInput);
+	if (Array.isArray(refsParsed)) {
+		return refsParsed
+			.map((ref) => String(ref).trim())
+			.filter((ref) => ref.length > 0);
+	} else if (typeof refsParsed === "string") {
+		return [refsParsed.trim()];
+	} else {
+		throw new Error("ref input must be a string or array");
+	}
+}
+
+function formatDate(dateString: string): string {
+	return new Date(dateString).toLocaleString().replace(/,/g, "");
+}
+
+function formatSize(bytes: number): string {
+	const units = ["B", "KB", "MB", "GB", "TB"];
+	let i = 0;
+	while (bytes >= 1024 && i < units.length - 1) {
+		bytes /= 1024;
+		i++;
+	}
+	return `${bytes.toFixed(2)} ${units[i]}`;
+}
