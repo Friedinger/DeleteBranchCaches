@@ -13,7 +13,7 @@ Add the following step to your workflow:
 
 ```yaml
 - name: Delete branch caches
-  uses: Friedinger/DeleteBranchCaches@v1
+  uses: Friedinger/DeleteBranchCaches@v2
   with:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       ref: ${{ github.ref }}
@@ -95,6 +95,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
+          fail-on-warning: true
 ```
 
 ## Development
