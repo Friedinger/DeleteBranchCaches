@@ -29981,10 +29981,13 @@ function main() {
         octokit = new rest_1.Octokit({ auth: token });
         core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
         let deletedSize = 0;
+        let totalCaches = 0;
         for (const ref of refs) {
-            deletedSize += yield deleteCachesForRef(ref);
+            const { size, count } = yield deleteCachesForRef(ref);
+            deletedSize += size;
+            totalCaches += count;
         }
-        core.info(`✅ All caches with a total size of ${formatSize(deletedSize)} have been deleted successfully.`);
+        core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
     });
 }
 function deleteCachesForRef(ref) {
@@ -29996,30 +29999,33 @@ function deleteCachesForRef(ref) {
         });
         const count = caches.data.actions_caches.length;
         let deletedSize = 0;
+        let deletedCount = 0;
         core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
         for (const cache of caches.data.actions_caches) {
-            deletedSize += yield deleteCache(cache);
+            const { success, size } = yield deleteCache(cache);
+            if (success)
+                deletedCount++;
+            deletedSize += size;
         }
-        return deletedSize;
+        return { size: deletedSize, count: deletedCount };
     });
 }
 function deleteCache(cache) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        if (!cache.id)
-            return 0;
         try {
+            if (!cache.id)
+                throw new Error("Missing cache.id");
             yield octokit.rest.actions.deleteActionsCacheById({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 cache_id: cache.id,
             });
-            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate((_a = cache.created_at) !== null && _a !== void 0 ? _a : "")}"`);
-            return (_b = cache.size_in_bytes) !== null && _b !== void 0 ? _b : 0;
+            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at)}"`);
+            return { success: true, size: cache.size_in_bytes };
         }
         catch (error) {
             core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
-            return 0;
+            return { success: false, size: 0 };
         }
     });
 }

@@ -22,17 +22,22 @@ async function main(): Promise<void> {
 	);
 
 	let deletedSize = 0;
+	let totalCaches = 0;
 	for (const ref of refs) {
-		deletedSize += await deleteCachesForRef(ref);
+		const { size, count } = await deleteCachesForRef(ref);
+		deletedSize += size;
+		totalCaches += count;
 	}
 	core.info(
-		`✅ All caches with a total size of ${formatSize(
-			deletedSize
-		)} have been deleted successfully.`
+		`✅ Deleted ${totalCaches} cache${
+			totalCaches === 1 ? "" : "s"
+		} with a total size of ${formatSize(deletedSize)}.`
 	);
 }
 
-async function deleteCachesForRef(ref: string): Promise<number> {
+async function deleteCachesForRef(
+	ref: string
+): Promise<{ size: number; count: number }> {
 	const caches = await octokit.rest.actions.getActionsCacheList({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
@@ -40,18 +45,23 @@ async function deleteCachesForRef(ref: string): Promise<number> {
 	});
 	const count = caches.data.actions_caches.length;
 	let deletedSize = 0;
+	let deletedCount = 0;
 	core.info(
 		`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`
 	);
 	for (const cache of caches.data.actions_caches) {
-		deletedSize += await deleteCache(cache);
+		const { success, size } = await deleteCache(cache);
+		if (success) deletedCount++;
+		deletedSize += size;
 	}
-	return deletedSize;
+	return { size: deletedSize, count: deletedCount };
 }
 
-async function deleteCache(cache: Cache): Promise<number> {
-	if (!cache.id) return 0;
+async function deleteCache(
+	cache: Cache
+): Promise<{ success: boolean; size: number }> {
 	try {
+		if (!cache.id) throw new Error("Missing cache.id");
 		await octokit.rest.actions.deleteActionsCacheById({
 			owner: github.context.repo.owner,
 			repo: github.context.repo.repo,
@@ -60,12 +70,12 @@ async function deleteCache(cache: Cache): Promise<number> {
 		core.info(
 			`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
 				cache.ref
-			}", created at ${formatDate(cache.created_at ?? "")}"`
+			}", created at ${formatDate(cache.created_at!)}"`
 		);
-		return cache.size_in_bytes ?? 0;
+		return { success: true, size: cache.size_in_bytes! };
 	} catch (error) {
 		core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
-		return 0;
+		return { success: false, size: 0 };
 	}
 }
 
