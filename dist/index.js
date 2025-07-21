@@ -30005,16 +30005,22 @@ function deleteCachesForRef(ref) {
 }
 function deleteCache(cache) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
+        var _a, _b;
         if (!cache.id)
             return 0;
-        yield octokit.rest.actions.deleteActionsCacheById({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            cache_id: cache.id,
-        });
-        core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at)}`);
-        return (_a = cache.size_in_bytes) !== null && _a !== void 0 ? _a : 0;
+        try {
+            yield octokit.rest.actions.deleteActionsCacheById({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                cache_id: cache.id,
+            });
+            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate((_a = cache.created_at) !== null && _a !== void 0 ? _a : "")}"`);
+            return (_b = cache.size_in_bytes) !== null && _b !== void 0 ? _b : 0;
+        }
+        catch (error) {
+            core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
+            return 0;
+        }
     });
 }
 function parseRefs(refsInput) {

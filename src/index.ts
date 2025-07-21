@@ -51,17 +51,22 @@ async function deleteCachesForRef(ref: string): Promise<number> {
 
 async function deleteCache(cache: Cache): Promise<number> {
 	if (!cache.id) return 0;
-	await octokit.rest.actions.deleteActionsCacheById({
-		owner: github.context.repo.owner,
-		repo: github.context.repo.repo,
-		cache_id: cache.id,
-	});
-	core.info(
-		`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
-			cache.ref
-		}", created at ${formatDate(cache.created_at!)}`
-	);
-	return cache.size_in_bytes ?? 0;
+	try {
+		await octokit.rest.actions.deleteActionsCacheById({
+			owner: github.context.repo.owner,
+			repo: github.context.repo.repo,
+			cache_id: cache.id,
+		});
+		core.info(
+			`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
+				cache.ref
+			}", created at ${formatDate(cache.created_at ?? "")}"`
+		);
+		return cache.size_in_bytes ?? 0;
+	} catch (error) {
+		core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
+		return 0;
+	}
 }
 
 function parseRefs(refsInput: string): string[] {
