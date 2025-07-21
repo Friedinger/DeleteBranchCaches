@@ -29972,11 +29972,13 @@ const rest_1 = __nccwpck_require__(6145);
 const yaml_1 = __importDefault(__nccwpck_require__(8815));
 const package_json_1 = __importDefault(__nccwpck_require__(8330));
 let octokit;
+let hadWarning = false;
 main().catch((err) => core.setFailed(`❌ ${err.message}`));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const token = core.getInput("github-token", { required: true });
         const refsInput = core.getInput("ref", { required: true });
+        const failOnWarning = core.getInput("fail-on-warning") === "true";
         const refs = parseRefs(refsInput);
         octokit = new rest_1.Octokit({ auth: token });
         core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
@@ -29988,6 +29990,9 @@ function main() {
             totalCaches += count;
         }
         core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
+        if (failOnWarning && hadWarning) {
+            core.setFailed("⚠️ Action failed due to warning(s).");
+        }
     });
 }
 function deleteCachesForRef(ref) {
@@ -30012,6 +30017,7 @@ function deleteCachesForRef(ref) {
 }
 function deleteCache(cache) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         try {
             if (!cache.id)
                 throw new Error("Missing cache.id");
@@ -30020,10 +30026,11 @@ function deleteCache(cache) {
                 repo: github.context.repo.repo,
                 cache_id: cache.id,
             });
-            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at)}"`);
-            return { success: true, size: cache.size_in_bytes };
+            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate((_a = cache.created_at) !== null && _a !== void 0 ? _a : "")}"`);
+            return { success: true, size: (_b = cache.size_in_bytes) !== null && _b !== void 0 ? _b : 0 };
         }
         catch (error) {
+            hadWarning = true;
             core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
             return { success: false, size: 0 };
         }

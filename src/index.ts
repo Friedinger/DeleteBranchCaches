@@ -9,12 +9,14 @@ type Cache = Awaited<
 >["data"]["actions_caches"][number];
 
 let octokit: Octokit;
+let hadWarning = false;
 
 main().catch((err) => core.setFailed(`❌ ${err.message}`));
 
 async function main(): Promise<void> {
 	const token = core.getInput("github-token", { required: true });
 	const refsInput = core.getInput("ref", { required: true });
+	const failOnWarning = core.getInput("fail-on-warning") === "true";
 	const refs = parseRefs(refsInput);
 	octokit = new Octokit({ auth: token });
 	core.info(
@@ -33,6 +35,9 @@ async function main(): Promise<void> {
 			totalCaches === 1 ? "" : "s"
 		} with a total size of ${formatSize(deletedSize)}.`
 	);
+	if (failOnWarning && hadWarning) {
+		core.setFailed("⚠️ Action failed due to warning(s).");
+	}
 }
 
 async function deleteCachesForRef(
@@ -70,10 +75,11 @@ async function deleteCache(
 		core.info(
 			`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
 				cache.ref
-			}", created at ${formatDate(cache.created_at!)}"`
+			}", created at ${formatDate(cache.created_at ?? "")}"`
 		);
-		return { success: true, size: cache.size_in_bytes! };
+		return { success: true, size: cache.size_in_bytes ?? 0 };
 	} catch (error) {
+		hadWarning = true;
 		core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
 		return { success: false, size: 0 };
 	}

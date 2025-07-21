@@ -11,9 +11,13 @@ inputs:
     required: true
     default: ${{ github.token }}
   ref:
-    description: The branch reference to delete caches for (e.g., 'refs/heads/main')
+    description: The branch reference to delete caches for (e.g., 'refs/heads/main'), can be a single string or a yaml list
     required: true
     default: ${{ github.ref }}
+  fail-on-warning:
+    description: Fail the action if a warning occurs during cache deletion
+    required: false
+    default: 'false'
 
 runs:
   using: "node20"
