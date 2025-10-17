@@ -8,7 +8,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
             - name: Create test file
               run: |
@@ -16,7 +16,7 @@ jobs:
                   echo "Creating cache for ${{ github.ref }} on ${{ github.sha }}" > test-cache/test.txt
 
             - name: Create cache
-              uses: actions/cache@v4
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
               with:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}
@@ -30,7 +30,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
             - name: Delete current branch caches
               uses: ./
