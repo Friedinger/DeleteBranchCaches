@@ -1,6 +1,6 @@
 {
     "name": "delete-branch-caches",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "A GitHub Action to delete all caches associated with a specific branch reference in your repository.",
     "repository": {
         "type": "git",
