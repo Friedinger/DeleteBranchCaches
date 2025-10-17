@@ -1,7 +1,7 @@
 # Delete Branch Caches
 
 <a href="https://github.com/Friedinger/DeleteBranchCaches/releases"><img alt="Release" src="https://img.shields.io/github/v/release/Friedinger/DeleteBranchCaches"></a>
-<a href="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/test-action.yml"><img alt="Build" src="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/test-action.yml/badge.svg"></a>
+<a href="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/test-action.yml"><img alt="Build" src="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/build-test.yml/badge.svg"></a>
 <a href="https://github.com/Friedinger/DeleteBranchCaches/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/Friedinger/DeleteBranchCaches"></a>
 
 A GitHub Action to delete all caches associated with a specific branch reference in your repository.
