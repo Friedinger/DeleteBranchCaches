@@ -44612,7 +44612,7 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.2.0","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":"24.x"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt"},"dependencies":{"@actions/core":"1.11.1","@actions/github":"6.0.1","@octokit/rest":"22.0.0","yaml":"2.8.1"},"devDependencies":{"@vercel/ncc":"0.38.4","typescript":"5.9.3"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.2.0","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":">=24.0.0 <=24"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt"},"dependencies":{"@actions/core":"1.11.1","@actions/github":"6.0.1","@octokit/rest":"22.0.0","yaml":"2.8.1"},"devDependencies":{"@vercel/ncc":"0.38.4","typescript":"5.9.3"}}');
 
 /***/ })
 
