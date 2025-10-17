@@ -1,24 +1,4 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["config:recommended"],
-	"major": {
-		"automerge": false
-	},
-	"labels": ["dependencies"],
-	"commitMessagePrefix": "⬆️",
-	"commitMessageAction": "Upgrade",
-	"packageRules": [
-		{
-			"matchUpdateTypes": ["pin"],
-			"commitMessagePrefix": "📌",
-			"commitMessageAction": "Pin"
-		},
-		{
-			"matchUpdateTypes": ["rollback"],
-			"commitMessagePrefix": "⬇️",
-			"commitMessageAction": "Downgrade"
-		}
-	],
-	"dependencyDashboardTitle": "📌 Dependency Dashboard",
-	"dependencyDashboardLabels": ["dependencies"]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>Friedinger/Configs//renovate/recommended.json"]
 }
