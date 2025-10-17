@@ -106,7 +106,7 @@ jobs:
 
             - name: Commit dist directory
               if: github.ref == 'refs/heads/main'
-              uses: stefanzweifel/git-auto-commit-action@v5
+              uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7
               with:
                   commit_message: "📦 Update action build [skip ci]"
                   file_pattern: "dist/**"
