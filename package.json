@@ -14,7 +14,7 @@
     "author": "Friedinger",
     "license": "MIT",
     "engines": {
-        "node": "24.x"
+        "node": ">=24.0.0 <=24"
     },
     "main": "dist/index.js",
     "scripts": {
