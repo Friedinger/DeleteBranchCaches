@@ -55,6 +55,7 @@ jobs:
               uses: actions/download-artifact@v5
               with:
                   name: action-dist
+                  path: dist
 
             - name: Delete current branch caches
               uses: ./
@@ -101,6 +102,7 @@ jobs:
               uses: actions/download-artifact@v5
               with:
                   name: action-dist
+                  path: dist
 
             - name: Commit dist directory
               if: github.ref == 'refs/heads/main'
