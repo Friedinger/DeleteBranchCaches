@@ -32,6 +32,12 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build action
+              run: npm run build
+
             - name: Delete current branch caches
               uses: ./
               with:
@@ -59,3 +65,10 @@ jobs:
               uses: ./
               with:
                   fail-on-warning: true
+
+            - name: Commit dist directory
+              if: github.ref == 'refs/heads/main'
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: "📦 Update action build [skip ci]"
+                  file_pattern: "dist/**"
