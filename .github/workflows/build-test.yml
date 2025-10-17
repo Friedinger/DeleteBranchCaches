@@ -84,7 +84,8 @@ jobs:
               with:
                   fail-on-warning: true
 
-    commit-update:
+    commit-build:
+        name: Commit Action Build
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main'
         needs: test
@@ -93,6 +94,9 @@ jobs:
             contents: write
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
             - name: Download action artifact
               uses: actions/download-artifact@v5
               with:
