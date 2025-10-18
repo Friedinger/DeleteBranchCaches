@@ -60,7 +60,7 @@ jobs:
                   echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
 
             - name: Create cache
-              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+              uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
               with:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
@@ -82,14 +82,37 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   ref: ${{ matrix.ref }}
-                  fail-on-warning: ${{ matrix.fail_on_warning }}
 
             - name: Run test case (without ref)
               if: matrix.ref == '__default__'
               uses: ./
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-                  fail-on-warning: ${{ matrix.fail_on_warning }}
+
+            - name: Run test case (fail on warning)
+              if: matrix.fail_on_warning == true
+              continue-on-error: true
+              uses: ./
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: ${{ matrix.ref != '__default__' && matrix.ref || '' }}
+                  fail-on-warning: true
+
+            - name: Try to restore cache
+              id: restore-cache
+              uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+              with:
+                  path: test-cache
+                  key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
+
+            - name: Verify cache deletion
+              run: |
+                  if [ ${{ steps.restore-cache.outputs.cache-hit }} ]; then
+                      echo "Cache was not deleted properly."
+                      exit 1
+                  else
+                      echo "Cache deletion verified."
+                  fi
 
     commit-build:
         name: Commit Action Build
