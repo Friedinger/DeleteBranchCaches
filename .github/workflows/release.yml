@@ -17,6 +17,8 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+              with:
+                  fetch-depth: 0
 
             - name: Npm setup
               uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
@@ -46,3 +48,11 @@ jobs:
                   name: "DeleteBranchCaches ${{ github.event.inputs.version }}"
                   draft: false
                   prerelease: false
+
+            - name: Update Major Release Tag
+              run: |
+                  MAJOR_VERSION="v$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)"
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                  git tag -fa "${MAJOR_VERSION}" -m "Update major version tag to v${{ github.event.inputs.version }}"
+                  git push origin "${MAJOR_VERSION}" --force
