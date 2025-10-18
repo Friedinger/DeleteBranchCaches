@@ -18,7 +18,8 @@
     },
     "main": "dist/index.js",
     "scripts": {
-        "build": "npx ncc build src/index.ts -o dist --license licenses.txt"
+        "build": "npx ncc build src/index.ts -o dist --license licenses.txt",
+        "test": "vitest run"
     },
     "dependencies": {
         "@actions/core": "1.11.1",
@@ -28,6 +29,7 @@
     },
     "devDependencies": {
         "@vercel/ncc": "0.38.4",
-        "typescript": "5.9.3"
+        "typescript": "5.9.3",
+        "vitest": "3.2.4"
     }
 }
