@@ -1,0 +1,48 @@
+name: Create Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "The version to release (e.g., 1.2.3)"
+                required: true
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+            - name: Npm setup
+              uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+              with:
+                  node-version: 24.10.0
+                  cache: "npm"
+
+            - name: Update package.json version
+              run: npm version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build action
+              run: npm run build
+
+            - name: Commit changes
+              uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7
+              with:
+                  commit_message: "🔖 Release v${{ github.event.inputs.version }} [skip ci]"
+                  tagging_message: "v${{ github.event.inputs.version }}"
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: "v${{ github.event.inputs.version }}"
+                  name: "DeleteBranchCaches ${{ github.event.inputs.version }}"
+                  draft: false
+                  prerelease: false
