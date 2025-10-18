@@ -29953,15 +29953,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -29974,67 +29965,60 @@ const package_json_1 = __importDefault(__nccwpck_require__(8330));
 let octokit;
 let hadWarning = false;
 main().catch((err) => core.setFailed(`❌ ${err.message}`));
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const token = core.getInput("github-token", { required: true });
-        const refsInput = core.getInput("ref", { required: true });
-        const failOnWarning = core.getInput("fail-on-warning") === "true";
-        const refs = parseRefs(refsInput);
-        octokit = new rest_1.Octokit({ auth: token });
-        core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
-        let deletedSize = 0;
-        let totalCaches = 0;
-        for (const ref of refs) {
-            const { size, count } = yield deleteCachesForRef(ref);
-            deletedSize += size;
-            totalCaches += count;
-        }
-        core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
-        if (failOnWarning && hadWarning) {
-            core.setFailed("⚠️ Action failed due to warning(s).");
-        }
-    });
+async function main() {
+    const token = core.getInput("github-token", { required: true });
+    const refsInput = core.getInput("ref", { required: true });
+    const failOnWarning = core.getInput("fail-on-warning") === "true";
+    const refs = parseRefs(refsInput);
+    octokit = new rest_1.Octokit({ auth: token });
+    core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
+    let deletedSize = 0;
+    let totalCaches = 0;
+    for (const ref of refs) {
+        const { size, count } = await deleteCachesForRef(ref);
+        deletedSize += size;
+        totalCaches += count;
+    }
+    core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
+    if (failOnWarning && hadWarning) {
+        core.setFailed("⚠️ Action failed due to warning(s).");
+    }
 }
-function deleteCachesForRef(ref) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const caches = yield octokit.rest.actions.getActionsCacheList({
+async function deleteCachesForRef(ref) {
+    const caches = await octokit.rest.actions.getActionsCacheList({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        ref: ref,
+    });
+    const count = caches.data.actions_caches.length;
+    let deletedSize = 0;
+    let deletedCount = 0;
+    core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
+    for (const cache of caches.data.actions_caches) {
+        const { success, size } = await deleteCache(cache);
+        if (success)
+            deletedCount++;
+        deletedSize += size;
+    }
+    return { size: deletedSize, count: deletedCount };
+}
+async function deleteCache(cache) {
+    try {
+        if (!cache.id)
+            throw new Error("Missing cache.id");
+        await octokit.rest.actions.deleteActionsCacheById({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            ref: ref,
+            cache_id: cache.id,
         });
-        const count = caches.data.actions_caches.length;
-        let deletedSize = 0;
-        let deletedCount = 0;
-        core.info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
-        for (const cache of caches.data.actions_caches) {
-            const { success, size } = yield deleteCache(cache);
-            if (success)
-                deletedCount++;
-            deletedSize += size;
-        }
-        return { size: deletedSize, count: deletedCount };
-    });
-}
-function deleteCache(cache) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        try {
-            if (!cache.id)
-                throw new Error("Missing cache.id");
-            yield octokit.rest.actions.deleteActionsCacheById({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                cache_id: cache.id,
-            });
-            core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate((_a = cache.created_at) !== null && _a !== void 0 ? _a : "")}"`);
-            return { success: true, size: (_b = cache.size_in_bytes) !== null && _b !== void 0 ? _b : 0 };
-        }
-        catch (error) {
-            hadWarning = true;
-            core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
-            return { success: false, size: 0 };
-        }
-    });
+        core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at ?? "")}"`);
+        return { success: true, size: cache.size_in_bytes ?? 0 };
+    }
+    catch (error) {
+        hadWarning = true;
+        core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
+        return { success: false, size: 0 };
+    }
 }
 function parseRefs(refsInput) {
     const refsParsed = yaml_1.default.parse(refsInput);
@@ -30047,11 +30031,11 @@ function parseRefs(refsInput) {
         return [refsParsed.trim()];
     }
     else {
-        throw new Error("ref input must be a string or array");
+        throw new TypeError("ref input must be a string or array");
     }
 }
 function formatDate(dateString) {
-    return new Date(dateString).toLocaleString().replace(/,/g, "");
+    return new Date(dateString).toLocaleString().replaceAll(",", "");
 }
 function formatSize(bytes) {
     const units = ["B", "KB", "MB", "GB", "TB"];
