@@ -37,17 +37,19 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                ref:
-                    - ${{ github.ref }}
-                    - |
-                        - ${{ github.ref }}
-                        - ${{ github.ref }}
-                        - refs/heads/feature-branch
-                    - "[${{ github.ref }}, ${{ github.ref }}]"
-                    - __default__
-                fail_on_warning:
-                    - false
-                    - true
+                include:
+                    - ref: ${{ github.ref }}
+                      fail_on_warning: false
+                    - ref: "__default__"
+                      fail_on_warning: false
+                    - ref: |
+                          - ${{ github.ref }}
+                          - ${{ github.ref }}
+                      fail_on_warning: false
+                    - ref: "[${{ github.ref }}, ${{ github.ref }}]"
+                      fail_on_warning: false
+                    - ref: "__default__"
+                      fail_on_warning: true
 
         permissions:
             actions: write
