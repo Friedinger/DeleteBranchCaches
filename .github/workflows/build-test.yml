@@ -35,20 +35,19 @@ jobs:
         needs: build
 
         strategy:
+            max-parallel: 1
             matrix:
-                include:
-                    - ref: ${{ github.ref }}
-                      fail_on_warning: false
-                    - ref: "__default__"
-                      fail_on_warning: false
-                    - ref: |
-                          - ${{ github.ref }}
-                          - ${{ github.ref }}
-                      fail_on_warning: false
-                    - ref: "[${{ github.ref }}, ${{ github.ref }}]"
-                      fail_on_warning: false
-                    - ref: "__default__"
-                      fail_on_warning: true
+                ref:
+                    - ${{ github.ref }}
+                    - |
+                        - ${{ github.ref }}
+                        - ${{ github.ref }}
+                        - refs/heads/feature-branch
+                    - "[${{ github.ref }}, ${{ github.ref }}]"
+                    - __default__
+                fail_on_warning:
+                    - false
+                    - true
 
         permissions:
             actions: write
@@ -79,24 +78,19 @@ jobs:
             - name: Run test case (with ref)
               if: matrix.ref != '__default__'
               uses: ./
+              continue-on-error: ${{ matrix.fail_on_warning }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   ref: ${{ matrix.ref }}
+                  fail-on-warning: ${{ matrix.fail_on_warning }}
 
             - name: Run test case (without ref)
               if: matrix.ref == '__default__'
               uses: ./
+              continue-on-error: ${{ matrix.fail_on_warning }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Run test case (fail on warning)
-              if: matrix.fail_on_warning == true
-              continue-on-error: true
-              uses: ./
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  ref: ${{ matrix.ref != '__default__' && matrix.ref || '' }}
-                  fail-on-warning: true
+                  fail-on-warning: ${{ matrix.fail_on_warning }}
 
             - name: Try to restore cache
               id: restore-cache
