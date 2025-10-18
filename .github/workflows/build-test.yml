@@ -37,22 +37,17 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - test_name: "Delete current branch caches"
-                      ref: ${{ github.ref }}
+                    - ref: ${{ github.ref }}
                       fail_on_warning: false
-                    - test_name: "Delete default ref caches"
-                      ref: "__default__"
+                    - ref: "__default__"
                       fail_on_warning: false
-                    - test_name: "Delete list branch caches"
-                      ref: |
+                    - ref: |
                           - ${{ github.ref }}
                           - ${{ github.ref }}
                       fail_on_warning: false
-                    - test_name: "Delete list inline branch caches"
-                      ref: "[${{ github.ref }}, ${{ github.ref }}]"
+                    - ref: "[${{ github.ref }}, ${{ github.ref }}]"
                       fail_on_warning: false
-                    - test_name: "Delete caches with fail-on-warning"
-                      ref: "__default__"
+                    - ref: "__default__"
                       fail_on_warning: true
 
         permissions:
@@ -62,7 +57,7 @@ jobs:
             - name: Create test file
               run: |
                   mkdir -p test-cache
-                  echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ matrix.test_name }}" > test-cache/test.txt
+                  echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
 
             - name: Create cache
               uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
