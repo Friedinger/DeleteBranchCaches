@@ -15,17 +15,13 @@ describe("formatter", () => {
         expect(formatSize(1234)).toBe("1.21 KB");
     });
 
-    it("formatSize formats with all units", () => {
-        const units: Array<{ bytes: number; expected: string }> = [
-            { bytes: 100, expected: "100 B" },
-            { bytes: 1024, expected: "1 KB" },
-            { bytes: 1024 ** 2, expected: "1 MB" },
-            { bytes: 1024 ** 3, expected: "1 GB" },
-            { bytes: 1024 ** 4, expected: "1 TB" },
-        ];
-
-        for (const u of units) {
-            expect(formatSize(u.bytes)).toBe(u.expected);
-        }
+    it.each([
+        [100, "100 B"],
+        [1024, "1 KB"],
+        [1024 ** 2, "1 MB"],
+        [1024 ** 3, "1 GB"],
+        [1024 ** 4, "1 TB"],
+    ])("formatSize unit for %i bytes -> %s", (bytes, expected) => {
+        expect(formatSize(bytes as number)).toBe(expected as string);
     });
 });
