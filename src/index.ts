@@ -1,7 +1,8 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
-import yaml from "yaml";
+import { parseRefs } from "./parseRefs";
+import { formatDate, formatSize } from "./formatter";
 import packageJson from "../package.json";
 
 type Cache = Awaited<
@@ -83,31 +84,4 @@ async function deleteCache(
         core.warning(`⚠️ Could not delete cache ${cache.id}: ${error}`);
         return { success: false, size: 0 };
     }
-}
-
-function parseRefs(refsInput: string): string[] {
-    const refsParsed = yaml.parse(refsInput);
-    if (Array.isArray(refsParsed)) {
-        return refsParsed
-            .map((ref) => String(ref).trim())
-            .filter((ref) => ref.length > 0);
-    } else if (typeof refsParsed === "string") {
-        return [refsParsed.trim()];
-    } else {
-        throw new TypeError("ref input must be a string or array");
-    }
-}
-
-function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleString().replaceAll(",", "");
-}
-
-function formatSize(bytes: number): string {
-    const units = ["B", "KB", "MB", "GB", "TB"];
-    let i = 0;
-    while (bytes >= 1024 && i < units.length - 1) {
-        bytes /= 1024;
-        i++;
-    }
-    return `${bytes.toFixed(2)} ${units[i]}`;
 }
