@@ -8,12 +8,20 @@ describe("formatter", () => {
         expect(result).not.toContain(",");
     });
 
-    it("formatSize formats bytes to B", () => {
-        expect(formatSize(100)).toBe("100.00 B");
+    it("formatSize shows decimals only when needed", () => {
+        expect(formatSize(100)).toBe("100 B");
+        expect(formatSize(1024)).toBe("1 KB");
+        expect(formatSize(1536)).toBe("1.5 KB");
+        expect(formatSize(1234)).toBe("1.21 KB");
     });
 
-    it("formatSize formats to KB and MB correctly", () => {
-        expect(formatSize(1024)).toBe("1.00 KB");
-        expect(formatSize(1024 * 1024)).toBe("1.00 MB");
+    it.each([
+        [100, "100 B"],
+        [1024, "1 KB"],
+        [1024 ** 2, "1 MB"],
+        [1024 ** 3, "1 GB"],
+        [1024 ** 4, "1 TB"],
+    ])("formatSize unit for %i bytes -> %s", (bytes, expected) => {
+        expect(formatSize(bytes as number)).toBe(expected as string);
     });
 });

@@ -57,7 +57,7 @@ describe("delete caches", () => {
 
         expect(deleteActionsCacheById).toHaveBeenCalledTimes(2);
         expect(core.info).toHaveBeenCalledWith(
-            "✅ Deleted 2 caches with a total size of 300.00 B."
+            "✅ Deleted 2 caches with a total size of 300 B."
         );
     });
 });
