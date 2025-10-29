@@ -29915,6 +29915,30 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 1845:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatDate = formatDate;
+exports.formatSize = formatSize;
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleString().replaceAll(",", "");
+}
+function formatSize(bytes) {
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let i = 0;
+    while (bytes >= 1024 && i < units.length - 1) {
+        bytes /= 1024;
+        i++;
+    }
+    return `${bytes.toFixed(2)} ${units[i]}`;
+}
+
+
+/***/ }),
+
 /***/ 9407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -29960,7 +29984,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const github = __importStar(__nccwpck_require__(3228));
 const rest_1 = __nccwpck_require__(6145);
-const yaml_1 = __importDefault(__nccwpck_require__(8815));
+const parseRefs_1 = __nccwpck_require__(4858);
+const formatter_1 = __nccwpck_require__(1845);
 const package_json_1 = __importDefault(__nccwpck_require__(8330));
 let octokit;
 let hadWarning = false;
@@ -29969,7 +29994,7 @@ async function main() {
     const token = core.getInput("github-token", { required: true });
     const refsInput = core.getInput("ref", { required: true });
     const failOnWarning = core.getInput("fail-on-warning") === "true";
-    const refs = parseRefs(refsInput);
+    const refs = (0, parseRefs_1.parseRefs)(refsInput);
     octokit = new rest_1.Octokit({ auth: token });
     core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_json_1.default.version}`);
     let deletedSize = 0;
@@ -29979,7 +30004,7 @@ async function main() {
         deletedSize += size;
         totalCaches += count;
     }
-    core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
+    core.info(`✅ Deleted ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${(0, formatter_1.formatSize)(deletedSize)}.`);
     if (failOnWarning && hadWarning) {
         core.setFailed("⚠️ Action failed due to warning(s).");
     }
@@ -30011,7 +30036,7 @@ async function deleteCache(cache) {
             repo: github.context.repo.repo,
             cache_id: cache.id,
         });
-        core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${formatDate(cache.created_at ?? "")}"`);
+        core.info(`🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", created at ${(0, formatter_1.formatDate)(cache.created_at ?? "")}"`);
         return { success: true, size: cache.size_in_bytes ?? 0 };
     }
     catch (error) {
@@ -30020,6 +30045,21 @@ async function deleteCache(cache) {
         return { success: false, size: 0 };
     }
 }
+
+
+/***/ }),
+
+/***/ 4858:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseRefs = parseRefs;
+const yaml_1 = __importDefault(__nccwpck_require__(8815));
 function parseRefs(refsInput) {
     const refsParsed = yaml_1.default.parse(refsInput);
     if (Array.isArray(refsParsed)) {
@@ -30033,18 +30073,6 @@ function parseRefs(refsInput) {
     else {
         throw new TypeError("ref input must be a string or array");
     }
-}
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleString().replaceAll(",", "");
-}
-function formatSize(bytes) {
-    const units = ["B", "KB", "MB", "GB", "TB"];
-    let i = 0;
-    while (bytes >= 1024 && i < units.length - 1) {
-        bytes /= 1024;
-        i++;
-    }
-    return `${bytes.toFixed(2)} ${units[i]}`;
 }
 
 
@@ -44596,7 +44624,7 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.2.2","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":">=24.0.0 <=24"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt","test":"vitest run"},"dependencies":{"@actions/core":"1.11.1","@actions/github":"6.0.1","@octokit/rest":"22.0.0","yaml":"2.8.1"},"devDependencies":{"@vercel/ncc":"0.38.4","typescript":"5.9.3","vitest":"3.2.4"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.2.2","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":">=24.0.0 <=24"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt","test":"vitest run"},"dependencies":{"@actions/core":"1.11.1","@actions/github":"6.0.1","@octokit/rest":"22.0.0","yaml":"2.8.1"},"devDependencies":{"@vercel/ncc":"0.38.4","typescript":"5.9.3","vitest":"4.0.5"}}');
 
 /***/ })
 
