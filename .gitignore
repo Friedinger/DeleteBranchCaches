@@ -11,3 +11,6 @@ node_modules/
 # IDE directories
 .vscode/
 .idea/
+
+# Output directories
+coverage/
