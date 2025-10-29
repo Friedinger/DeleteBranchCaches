@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 
-export type CacheEntry = { id: number; size_in_bytes: number };
+export type CacheEntry = { id: number; size_in_bytes?: number };
 
 export const runAction = async () => {
     await import("../src/index");

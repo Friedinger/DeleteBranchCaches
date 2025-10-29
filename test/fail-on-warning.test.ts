@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { setupOctokitMocks, runAction } from "./utils";
 import type * as CoreType from "@actions/core";
-import type { Octokit as OctokitType } from "@octokit/rest";
+import type { Octokit } from "@octokit/rest";
 
 vi.mock("@actions/core");
 vi.mock("@actions/github", () => ({
@@ -21,7 +21,7 @@ vi.mock("../package.json", () => ({
 
 describe("error handling", () => {
     let core: typeof CoreType;
-    let octokit: typeof OctokitType;
+    let octokit: typeof Octokit;
 
     beforeEach(async () => {
         const coreModule = await import("@actions/core");
