@@ -35,6 +35,22 @@ describe("main", () => {
         await import("../src/index");
     };
 
+    const setupOctokitMock = (
+        getActionsCacheList: any,
+        deleteActionsCacheById: any
+    ) => {
+        vi.mocked(octokit).mockImplementation(function (): any {
+            return {
+                rest: {
+                    actions: {
+                        getActionsCacheList,
+                        deleteActionsCacheById,
+                    },
+                },
+            };
+        });
+    };
+
     it("should handle single ref", async () => {
         const getActionsCacheList = vi.fn().mockResolvedValue({
             data: {
@@ -43,14 +59,7 @@ describe("main", () => {
             },
         });
         const deleteActionsCacheById = vi.fn().mockResolvedValue({});
-        vi.mocked(octokit).mockImplementation((): any => ({
-            rest: {
-                actions: {
-                    getActionsCacheList,
-                    deleteActionsCacheById,
-                },
-            },
-        }));
+        setupOctokitMock(getActionsCacheList, deleteActionsCacheById);
 
         vi.spyOn(core, "getInput").mockImplementation((name: string) => {
             if (name === "ref") return "refs/heads/main";
@@ -90,14 +99,7 @@ describe("main", () => {
                 },
             });
         const deleteActionsCacheById = vi.fn().mockResolvedValue({});
-        vi.mocked(octokit).mockImplementation((): any => ({
-            rest: {
-                actions: {
-                    getActionsCacheList,
-                    deleteActionsCacheById,
-                },
-            },
-        }));
+        setupOctokitMock(getActionsCacheList, deleteActionsCacheById);
 
         vi.spyOn(core, "getInput").mockImplementation((name: string) => {
             if (name === "ref")
@@ -143,14 +145,7 @@ describe("main", () => {
                 },
             });
         const deleteActionsCacheById = vi.fn().mockResolvedValue({});
-        vi.mocked(octokit).mockImplementation((): any => ({
-            rest: {
-                actions: {
-                    getActionsCacheList,
-                    deleteActionsCacheById,
-                },
-            },
-        }));
+        setupOctokitMock(getActionsCacheList, deleteActionsCacheById);
 
         vi.spyOn(core, "getInput").mockImplementation((name: string) => {
             if (name === "ref") return "[refs/heads/feat-1, refs/heads/feat-2]";
@@ -158,6 +153,7 @@ describe("main", () => {
         });
 
         await runAction();
+
         expect(getActionsCacheList).toHaveBeenCalledTimes(2);
     });
 
@@ -171,14 +167,7 @@ describe("main", () => {
         const deleteActionsCacheById = vi
             .fn()
             .mockRejectedValue(new Error("Deletion failed"));
-        vi.mocked(octokit).mockImplementation((): any => ({
-            rest: {
-                actions: {
-                    getActionsCacheList,
-                    deleteActionsCacheById,
-                },
-            },
-        }));
+        setupOctokitMock(getActionsCacheList, deleteActionsCacheById);
 
         vi.spyOn(core, "getInput").mockImplementation((name: string) => {
             if (name === "ref") return "refs/heads/main";
@@ -203,14 +192,7 @@ describe("main", () => {
         const deleteActionsCacheById = vi
             .fn()
             .mockRejectedValue(new Error("Deletion failed"));
-        vi.mocked(octokit).mockImplementation((): any => ({
-            rest: {
-                actions: {
-                    getActionsCacheList,
-                    deleteActionsCacheById,
-                },
-            },
-        }));
+        setupOctokitMock(getActionsCacheList, deleteActionsCacheById);
 
         vi.spyOn(core, "getInput").mockImplementation((name: string) => {
             if (name === "ref") return "refs/heads/main";
