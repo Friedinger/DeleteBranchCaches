@@ -29933,7 +29933,11 @@ function formatSize(bytes) {
         bytes /= 1024;
         i++;
     }
-    return `${bytes.toFixed(2)} ${units[i]}`;
+    const roundedBytes = Math.round(bytes * 100) / 100;
+    const formattedBytes = roundedBytes
+        .toFixed(2)
+        .replace(/\.0+$|(?<=\.\d*[1-9])0+$/g, "");
+    return `${formattedBytes} ${units[i]}`;
 }
 
 
