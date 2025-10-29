@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { runAction } from "./utils";
+import { runAction, setupOctokitMocks } from "./utils";
 import type * as CoreType from "@actions/core";
+import type { Octokit } from "@octokit/rest";
 
 vi.mock("@actions/core");
 vi.mock("@actions/github", () => ({
@@ -20,10 +21,13 @@ vi.mock("../package.json", () => ({
 
 describe("error handling", () => {
     let core: typeof CoreType;
+    let octokit: typeof Octokit;
 
     beforeEach(async () => {
         const coreModule = await import("@actions/core");
         core = coreModule;
+        const octokitModule = await import("@octokit/rest");
+        octokit = octokitModule.Octokit;
     });
 
     afterEach(() => {
@@ -40,5 +44,23 @@ describe("error handling", () => {
         await runAction();
 
         expect(core.setFailed).toHaveBeenCalledWith("❌ Test error");
+    });
+
+    it("warns when cache.id is missing and does not call delete API", async () => {
+        const { deleteActionsCacheById } = setupOctokitMocks(octokit, [
+            { id: undefined, size_in_bytes: 100 } as any,
+        ]);
+
+        vi.spyOn(core, "getInput").mockImplementation((name: string) => {
+            if (name === "ref") return "refs/heads/main";
+            return "";
+        });
+
+        await runAction();
+
+        expect(deleteActionsCacheById).not.toHaveBeenCalled();
+        expect(core.warning).toHaveBeenCalledWith(
+            `⚠️ Could not delete cache ${undefined}: Error: Missing cache.id`
+        );
     });
 });

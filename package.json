@@ -19,7 +19,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "npx ncc build src/index.ts -o dist --license licenses.txt",
-        "test": "vitest run"
+        "test": "vitest run --coverage"
     },
     "dependencies": {
         "@actions/core": "1.11.1",
@@ -29,6 +29,7 @@
     },
     "devDependencies": {
         "@vercel/ncc": "0.38.4",
+        "@vitest/coverage-v8": "^4.0.5",
         "typescript": "5.9.3",
         "vitest": "4.0.5"
     }
