@@ -4,8 +4,7 @@ import { formatDate, formatSize } from "../src/formatter";
 describe("formatter", () => {
     it("formatDate returns readable string without commas", () => {
         const result = formatDate("2020-01-02T03:04:05.000Z");
-        expect(typeof result).toBe("string");
-        expect(result).not.toContain(",");
+        expect(result).toBe("2020-01-02 03:04:05");
     });
 
     it("formatSize shows decimals only when needed", () => {
