@@ -5,6 +5,7 @@ export default defineConfig({
         globals: true,
         coverage: {
             provider: "v8",
+            enabled: true,
             exclude: ["test/**"],
             thresholds: {
                 branches: 100,
