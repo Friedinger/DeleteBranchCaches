@@ -133,8 +133,8 @@ jobs:
                   path: dist
 
             - name: Commit dist directory
-              if: github.ref == 'refs/heads/main'
-              uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7
+              uses: suzuki-shunsuke/commit-action@87b297f0ce551411b43d1880f4fb3cbc60381055 # v0.0.14
               with:
                   commit_message: "📦 Update action build [skip ci]"
-                  file_pattern: "dist/**"
+                  files: "dist/**"
+                  fail_on_self_push: false

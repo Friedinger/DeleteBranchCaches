@@ -41,17 +41,18 @@ jobs:
               run: npm run build
 
             - name: Commit changes
-              uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7
+              uses: suzuki-shunsuke/commit-action@87b297f0ce551411b43d1880f4fb3cbc60381055 # v0.0.14
               with:
                   commit_message: "🔖 Release v${{ github.event.inputs.version }} [skip ci]"
-                  tagging_message: "v${{ github.event.inputs.version }}"
+                  files: "dist/**"
+                  fail_on_self_push: false
 
             - name: Create GitHub Release
               uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
               with:
-                  tag_name: "v${{ github.event.inputs.version }}"
+                  tag_name: "🔖 v${{ github.event.inputs.version }}"
                   name: "DeleteBranchCaches ${{ github.event.inputs.version }}"
-                  draft: false
+                  draft: true
                   prerelease: false
 
             - name: Update Major Release Tag
@@ -59,5 +60,5 @@ jobs:
                   MAJOR_VERSION="v$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)"
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-                  git tag -fa "${MAJOR_VERSION}" -m "Update major version tag to v${{ github.event.inputs.version }}"
+                  git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v${{ github.event.inputs.version }}"
                   git push origin "${MAJOR_VERSION}" --force
