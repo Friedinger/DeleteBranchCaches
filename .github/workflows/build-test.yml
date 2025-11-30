@@ -85,7 +85,7 @@ jobs:
               uses: ./
               continue-on-error: ${{ matrix.fail_on_warning }}
               with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ github.token }}
                   ref: ${{ matrix.ref }}
                   fail-on-warning: ${{ matrix.fail_on_warning }}
 
@@ -94,7 +94,7 @@ jobs:
               uses: ./
               continue-on-error: ${{ matrix.fail_on_warning }}
               with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ github.token }}
                   fail-on-warning: ${{ matrix.fail_on_warning }}
 
             - name: Try to restore cache

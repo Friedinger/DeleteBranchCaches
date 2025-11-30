@@ -20,7 +20,7 @@ Add the following step to your workflow:
 - name: Delete branch caches
   uses: Friedinger/DeleteBranchCaches@v2
   with:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      github-token: ${{ github.token }}
       ref: ${{ github.ref }}
 ```
 
@@ -99,7 +99,7 @@ jobs:
       - name: Delete branch caches
         uses: Friedinger/DeleteBranchCaches@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
           ref: ${{ github.ref }}
           fail-on-warning: true
 ```
