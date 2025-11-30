@@ -132,7 +132,17 @@ jobs:
                   name: action-dist
                   path: dist
 
+            - name: Check for repo changes
+              id: changes
+              run: |
+                  if [ -n "$(git status --porcelain --untracked-files=all dist)" ]; then
+                    echo "changes=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "changes=false" >> "$GITHUB_OUTPUT"
+                  fi
+
             - name: Commit dist directory
+              if: steps.changes.outputs.changes == 'true'
               uses: suzuki-shunsuke/commit-action@87b297f0ce551411b43d1880f4fb3cbc60381055 # v0.0.14
               with:
                   commit_message: "📦 Update action build [skip ci]"
