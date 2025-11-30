@@ -136,5 +136,5 @@ jobs:
               uses: suzuki-shunsuke/commit-action@87b297f0ce551411b43d1880f4fb3cbc60381055 # v0.0.14
               with:
                   commit_message: "📦 Update action build [skip ci]"
-                  files: "dist/**"
+                  root_dir: "dist"
                   fail_on_self_push: false
