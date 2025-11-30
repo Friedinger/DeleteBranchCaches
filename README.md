@@ -1,8 +1,9 @@
 # Delete Branch Caches
 
-<a href="https://github.com/Friedinger/DeleteBranchCaches/releases"><img alt="Release" src="https://img.shields.io/github/v/release/Friedinger/DeleteBranchCaches"></a>
-<a href="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/test-action.yml"><img alt="Build" src="https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/build-test.yml/badge.svg"></a>
-<a href="https://github.com/Friedinger/DeleteBranchCaches/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/Friedinger/DeleteBranchCaches"></a>
+[![Release](https://img.shields.io/github/v/release/Friedinger/DeleteBranchCaches?style=flat-square&color=blue)](https://github.com/Friedinger/DeleteBranchCaches/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Friedinger/DeleteBranchCaches/build-test.yml?style=flat-square&label=Build%20and%20Test&color=lime)](https://github.com/Friedinger/DeleteBranchCaches/actions/workflows/build-test.yml)
+[![Last Commit](https://img.shields.io/github/last-commit/Friedinger/DeleteBranchCaches?style=flat-square&color=orange)](https://github.com/Friedinger/DeleteBranchCaches/commits/main)
+[![License: MIT](https://img.shields.io/github/license/Friedinger/DeleteBranchCaches?style=flat-square&color=yellow)](LICENSE)
 
 A GitHub Action to delete all caches associated with a specific branch reference in your repository.
 
