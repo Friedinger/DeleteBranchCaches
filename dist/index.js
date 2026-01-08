@@ -3241,7 +3241,7 @@ class HttpClient {
         this._maxRetries = 1;
         this._keepAlive = false;
         this._disposed = false;
-        this.userAgent = userAgent;
+        this.userAgent = this._getUserAgentWithOrchestrationId(userAgent);
         this.handlers = handlers || [];
         this.requestOptions = requestOptions;
         if (requestOptions) {
@@ -3720,6 +3720,17 @@ class HttpClient {
             });
         }
         return proxyAgent;
+    }
+    _getUserAgentWithOrchestrationId(userAgent) {
+        const baseUserAgent = userAgent || 'actions/http-client';
+        const orchId = process.env['ACTIONS_ORCHESTRATION_ID'];
+        if (orchId) {
+            // Sanitize the orchestration ID to ensure it contains only valid characters
+            // Valid characters: 0-9, a-z, _, -, .
+            const sanitizedId = orchId.replace(/[^a-z0-9_.-]/gi, '_');
+            return `${baseUserAgent} actions_orchestration_id/${sanitizedId}`;
+        }
+        return baseUserAgent;
     }
     _performExponentialBackoff(retryNumber) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -45755,7 +45766,7 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.3.1","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":">=24.0.0 <=24"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt","test":"vitest run"},"dependencies":{"@actions/core":"2.0.1","@actions/github":"6.0.1","@octokit/rest":"22.0.1","yaml":"2.8.2"},"devDependencies":{"@vercel/ncc":"0.38.4","@vitest/coverage-v8":"4.0.16","typescript":"5.9.3","vitest":"4.0.16"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"delete-branch-caches","version":"2.3.1","description":"A GitHub Action to delete all caches associated with a specific branch reference in your repository.","repository":{"type":"git","url":"git+https://github.com/Friedinger/DeleteBranchCaches.git"},"bugs":{"url":"https://github.com/Friedinger/DeleteBranchCaches/issues"},"homepage":"https://github.com/Friedinger/DeleteBranchCaches#readme","keywords":[],"author":"Friedinger","license":"MIT","engines":{"node":">=24.0.0 <=24"},"main":"dist/index.js","scripts":{"build":"npx ncc build src/index.ts -o dist --license licenses.txt","test":"vitest run"},"dependencies":{"@actions/core":"2.0.2","@actions/github":"6.0.1","@octokit/rest":"22.0.1","yaml":"2.8.2"},"devDependencies":{"@vercel/ncc":"0.38.4","@vitest/coverage-v8":"4.0.16","typescript":"5.9.3","vitest":"4.0.16"}}');
 
 /***/ })
 
