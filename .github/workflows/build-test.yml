@@ -143,7 +143,7 @@ jobs:
 
             - name: Commit dist directory
               if: steps.changes.outputs.changes == 'true'
-              uses: suzuki-shunsuke/commit-action@87b297f0ce551411b43d1880f4fb3cbc60381055 # v0.0.14
+              uses: suzuki-shunsuke/commit-action@f28421acc277a6d6a9c1f94ea449076ad77dba67 # v0.1.0
               with:
                   commit_message: "📦 Update action build [skip ci]"
                   files: |
