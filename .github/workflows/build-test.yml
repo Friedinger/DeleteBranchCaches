@@ -64,7 +64,7 @@ jobs:
                   echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
 
             - name: Create cache
-              uses: actions/cache/save@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+              uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
               with:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
@@ -99,7 +99,7 @@ jobs:
 
             - name: Try to restore cache
               id: restore-cache
-              uses: actions/cache/restore@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+              uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
               with:
                   path: test-cache
                   key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
