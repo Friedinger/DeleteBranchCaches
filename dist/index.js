@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 4844:
+/***/ 9659:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -55,7 +55,7 @@ exports.getProxyUrl = getProxyUrl;
 exports.isHttps = isHttps;
 const http = __importStar(__nccwpck_require__(8611));
 const https = __importStar(__nccwpck_require__(5692));
-const pm = __importStar(__nccwpck_require__(4988));
+const pm = __importStar(__nccwpck_require__(3335));
 const tunnel = __importStar(__nccwpck_require__(770));
 const undici_1 = __nccwpck_require__(6752);
 var HttpCodes;
@@ -745,7 +745,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 4988:
+/***/ 3335:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -37760,7 +37760,7 @@ const external_path_namespaceObject = require("path");
 var external_http_ = __nccwpck_require__(8611);
 // EXTERNAL MODULE: external "https"
 var external_https_ = __nccwpck_require__(5692);
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/proxy.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/proxy.js
 function getProxyUrl(reqUrl) {
     const usingSsl = reqUrl.protocol === 'https:';
     if (checkBypass(reqUrl)) {
@@ -37855,7 +37855,7 @@ class DecodedURL extends URL {
 var node_modules_tunnel = __nccwpck_require__(770);
 // EXTERNAL MODULE: ./node_modules/undici/index.js
 var undici = __nccwpck_require__(6752);
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/index.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/index.js
 /* eslint-disable @typescript-eslint/no-explicit-any */
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -38552,7 +38552,7 @@ class lib_HttpClient {
 }
 const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCase()] = obj[k]), c), {});
 //# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/auth.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/auth.js
 var auth_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40583,8 +40583,8 @@ class Context {
     }
 }
 //# sourceMappingURL=context.js.map
-// EXTERNAL MODULE: ./node_modules/@actions/http-client/lib/index.js
-var lib = __nccwpck_require__(4844);
+// EXTERNAL MODULE: ./node_modules/@actions/github/node_modules/@actions/http-client/lib/index.js
+var lib = __nccwpck_require__(9659);
 ;// CONCATENATED MODULE: ./node_modules/@actions/github/lib/internal/utils.js
 var utils_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -44609,11 +44609,11 @@ function getOctokit(token, options, ...additionalPlugins) {
     return new GitHubWithPlugins(getOctokitOptions(token, options));
 }
 //# sourceMappingURL=github.js.map
-;// CONCATENATED MODULE: ./node_modules/@octokit/rest/node_modules/@octokit/plugin-request-log/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-request-log/dist-src/version.js
 const plugin_request_log_dist_src_version_VERSION = "6.0.0";
 
 
-;// CONCATENATED MODULE: ./node_modules/@octokit/rest/node_modules/@octokit/plugin-request-log/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-request-log/dist-src/index.js
 
 function requestLog(octokit) {
   octokit.hook.wrap("request", (request, options) => {
