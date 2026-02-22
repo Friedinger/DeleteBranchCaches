@@ -15,15 +15,17 @@ export function setupOctokitMocks(
   responses: CacheEntry[] | CacheEntry[][],
 ) {
   const { getActionsCacheList, deleteActionsCacheById } =
-    makeActionsMocks(responses);
-  vi.mocked(octokit).mockImplementation(() => ({
-    rest: {
-      actions: {
-        getActionsCacheList,
-        deleteActionsCacheById,
+    makeActionsMocks(caches);
+  vi.mocked(octokit).mockImplementation(function () {
+    return {
+      rest: {
+        actions: {
+          getActionsCacheList,
+          deleteActionsCacheById,
+        },
       },
-    },
-  }));
+    };
+  });
   return { getActionsCacheList, deleteActionsCacheById };
 }
 
