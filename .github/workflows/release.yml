@@ -66,5 +66,6 @@ jobs:
           MAJOR_VERSION="v$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only
           git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v${{ github.event.inputs.version }}"
           git push origin "${MAJOR_VERSION}" --force
