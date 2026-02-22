@@ -15,6 +15,8 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.inputs.version }}
 
     steps:
       - name: Checkout repository
@@ -29,7 +31,7 @@ jobs:
           cache: "npm"
 
       - name: Update package.json version
-        run: npm version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
+        run: npm version --new-version "$VERSION" --no-git-tag-version
 
       - name: Install dependencies
         run: npm install
@@ -46,7 +48,7 @@ jobs:
       - name: Commit changes
         uses: suzuki-shunsuke/commit-action@f28421acc277a6d6a9c1f94ea449076ad77dba67 # v0.1.0
         with:
-          commit_message: "🔖 Release v${{ github.event.inputs.version }} [skip ci]"
+          commit_message: "🔖 Release v${{ env.VERSION }} [skip ci]"
           files: |
             dist/
             package.json
@@ -56,16 +58,16 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
-          tag_name: "v${{ github.event.inputs.version }}"
-          name: "🔖 DeleteBranchCaches v${{ github.event.inputs.version }}"
+          tag_name: "v${{ env.VERSION }}"
+          name: "🔖 DeleteBranchCaches v${{ env.VERSION }}"
           draft: true
           prerelease: false
 
       - name: Update Major Release Tag
         run: |
-          MAJOR_VERSION="v$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)"
+          MAJOR_VERSION="v$(echo "$VERSION" | cut -d. -f1)"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git pull --ff-only
-          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v${{ github.event.inputs.version }}"
+          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v$VERSION"
           git push origin "${MAJOR_VERSION}" --force
