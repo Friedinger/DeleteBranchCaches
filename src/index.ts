@@ -74,7 +74,7 @@ async function deleteCache(
     core.info(
       `🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
         cache.ref
-      }", created at ${formatDate(cache.created_at ?? "")}"`,
+      }", created at ${formatDate(cache.created_at ?? "")}`,
     );
     return { success: true, size: cache.size_in_bytes ?? 0 };
   } catch (error) {
