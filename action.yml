@@ -17,7 +17,7 @@ inputs:
   fail-on-warning:
     description: Fail the action if a warning occurs during cache deletion
     required: false
-    default: 'false'
+    default: "false"
 
 runs:
   using: "node24"
