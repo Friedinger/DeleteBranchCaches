@@ -115,4 +115,4 @@ npm run build
 
 ## License
 
-MIT License © 2025 Friedinger
+[MIT License](LICENSE) © 2026 Friedinger
