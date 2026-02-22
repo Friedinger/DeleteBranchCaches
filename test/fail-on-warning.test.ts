@@ -19,7 +19,7 @@ vi.mock("../package.json", () => ({
   },
 }));
 
-describe("error handling", () => {
+describe("fail-on-warning behavior", () => {
   let core: typeof CoreType;
   let octokit: typeof Octokit;
 

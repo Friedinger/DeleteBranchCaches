@@ -12,7 +12,7 @@ export async function runAction() {
 
 export function setupOctokitMocks(
   octokit: typeof Octokit,
-  responses: CacheEntry[] | CacheEntry[][],
+  caches: CacheEntry[],
 ) {
   const { getActionsCacheList, deleteActionsCacheById } =
     makeActionsMocks(caches);
@@ -29,30 +29,10 @@ export function setupOctokitMocks(
   return { getActionsCacheList, deleteActionsCacheById };
 }
 
-export function makeActionsMocks(responses: CacheEntry[] | CacheEntry[][]) {
-  let getActionsCacheList: ReturnType<typeof vi.fn>;
-
-  if (
-    Array.isArray(responses) &&
-    responses.length &&
-    Array.isArray(responses[0])
-  ) {
-    getActionsCacheList = vi.fn();
-    for (const caches of responses as CacheEntry[][]) {
-      getActionsCacheList.mockResolvedValueOnce({
-        data: {
-          total_count: caches.length,
-          actions_caches: caches,
-        },
-      });
-    }
-  } else {
-    const caches = responses as CacheEntry[];
-    getActionsCacheList = vi.fn().mockResolvedValue({
-      data: { total_count: caches.length, actions_caches: caches },
-    });
-  }
-
+export function makeActionsMocks(caches: CacheEntry[]) {
+  const getActionsCacheList = vi.fn().mockResolvedValue({
+    data: { total_count: caches.length, actions_caches: caches },
+  });
   const deleteActionsCacheById = vi.fn().mockResolvedValue({});
 
   return { getActionsCacheList, deleteActionsCacheById };
