@@ -1,35 +1,34 @@
+import { Octokit } from "@octokit/rest";
 import { vi } from "vitest";
 
-export type CacheEntry = { id: number; size_in_bytes?: number };
+export interface CacheEntry {
+  id: number;
+  size_in_bytes?: number;
+}
 
-export const runAction = async () => {
+export async function runAction() {
   await import("../src/index");
-};
+}
 
-export const setupOctokitMocks = (
-  octokit: any,
-  responses: Array<CacheEntry> | Array<Array<CacheEntry>>,
-) => {
-  const { getActionsCacheList, deleteActionsCacheById } = makeActionsMocks(
-    responses as any,
-  );
-  vi.mocked(octokit).mockImplementation(function (): any {
-    return {
-      rest: {
-        actions: {
-          getActionsCacheList,
-          deleteActionsCacheById,
-        },
+export function setupOctokitMocks(
+  octokit: typeof Octokit,
+  responses: CacheEntry[] | CacheEntry[][],
+) {
+  const { getActionsCacheList, deleteActionsCacheById } =
+    makeActionsMocks(responses);
+  vi.mocked(octokit).mockImplementation(() => ({
+    rest: {
+      actions: {
+        getActionsCacheList,
+        deleteActionsCacheById,
       },
-    };
-  });
+    },
+  }));
   return { getActionsCacheList, deleteActionsCacheById };
-};
+}
 
-export const makeActionsMocks = (
-  responses: Array<CacheEntry> | Array<Array<CacheEntry>>,
-) => {
-  let getActionsCacheList: any;
+export function makeActionsMocks(responses: CacheEntry[] | CacheEntry[][]) {
+  let getActionsCacheList: ReturnType<typeof vi.fn>;
 
   if (
     Array.isArray(responses) &&
@@ -37,7 +36,7 @@ export const makeActionsMocks = (
     Array.isArray(responses[0])
   ) {
     getActionsCacheList = vi.fn();
-    for (const caches of responses as Array<Array<any>>) {
+    for (const caches of responses as CacheEntry[][]) {
       getActionsCacheList.mockResolvedValueOnce({
         data: {
           total_count: caches.length,
@@ -46,7 +45,7 @@ export const makeActionsMocks = (
       });
     }
   } else {
-    const caches = responses as Array<any>;
+    const caches = responses as CacheEntry[];
     getActionsCacheList = vi.fn().mockResolvedValue({
       data: { total_count: caches.length, actions_caches: caches },
     });
@@ -55,4 +54,4 @@ export const makeActionsMocks = (
   const deleteActionsCacheById = vi.fn().mockResolvedValue({});
 
   return { getActionsCacheList, deleteActionsCacheById };
-};
+}

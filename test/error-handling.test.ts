@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { runAction, setupOctokitMocks } from "./utils";
+import { CacheEntry, runAction, setupOctokitMocks } from "./utils";
 import type * as CoreType from "@actions/core";
 import type { Octokit } from "@octokit/rest";
 
@@ -48,7 +48,7 @@ describe("error handling", () => {
 
   it("warns when cache.id is missing and does not call delete API", async () => {
     const { deleteActionsCacheById } = setupOctokitMocks(octokit, [
-      { id: undefined, size_in_bytes: 100 } as any,
+      { id: undefined, size_in_bytes: 100 } as unknown as CacheEntry[],
     ]);
 
     vi.spyOn(core, "getInput").mockImplementation((name: string) => {
