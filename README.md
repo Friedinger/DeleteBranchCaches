@@ -9,8 +9,8 @@ A GitHub Action to delete all caches associated with a specific branch reference
 
 ## Features
 
--   Deletes all GitHub Actions caches for a given branch (`ref`)
--   Useful for cleaning up storage and avoiding stale caches
+- Deletes all GitHub Actions caches for a given branch (`ref`)
+- Useful for cleaning up storage and avoiding stale caches
 
 ## Usage
 
@@ -20,15 +20,15 @@ Add the following step to your workflow:
 - name: Delete branch caches
   uses: Friedinger/DeleteBranchCaches@v2
   with:
-      github-token: ${{ github.token }}
-      ref: ${{ github.ref }}
+    github-token: ${{ github.token }}
+    ref: ${{ github.ref }}
 ```
 
 **Note:** Your workflow or job must include the following permissions:
 
 ```yaml
 permissions:
-    actions: write
+  actions: write
 ```
 
 This is required to allow the action to delete caches.
@@ -43,8 +43,8 @@ This is required to allow the action to delete caches.
 
 #### Notes
 
--   You can leave out both inputs to use the default values, which will delete caches for the current branch of the workflow.
--   But it is recommended to always specify the `github-token` input for clarity and to avoid issues with permissions.
+- You can leave out both inputs to use the default values, which will delete caches for the current branch of the workflow.
+- But it is recommended to always specify the `github-token` input for clarity and to avoid issues with permissions.
 
 ### Input options for `ref`
 
@@ -60,8 +60,8 @@ ref: refs/heads/main
 
 ```yaml
 ref: |
-    refs/heads/branch-1
-    refs/heads/branch-2
+  refs/heads/branch-1
+  refs/heads/branch-2
 ```
 
 #### Multiple branch refs as array in string
@@ -72,9 +72,9 @@ ref: "['refs/heads/branch-1', 'refs/heads/branch-2']"
 
 #### Notes
 
--   The action automatically detects the format and processes all variants correctly.
--   For lists, the YAML list or array syntax is recommended for best readability.
--   Sadly, directly passing an array like `ref: [refs/heads/branch-1, refs/heads/branch-2]` does not work due to GitHub only supporting strings for inputs.
+- The action automatically detects the format and processes all variants correctly.
+- For lists, the YAML list or array syntax is recommended for best readability.
+- Sadly, directly passing an array like `ref: [refs/heads/branch-1, refs/heads/branch-2]` does not work due to GitHub only supporting strings for inputs.
 
 ## Example Workflow
 

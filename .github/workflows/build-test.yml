@@ -3,148 +3,148 @@ name: Build and Test Action
 on: [push]
 
 jobs:
-    build:
-        name: Build Action
-        runs-on: ubuntu-latest
+  build:
+    name: Build Action
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-            - name: Npm setup
-              uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-              with:
-                  node-version: 24.13.1
-                  cache: "npm"
+      - name: Npm setup
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24.13.1
+          cache: "npm"
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Run tests
-              run: npm test
+      - name: Run tests
+        run: npm test
 
-            - name: Build action
-              run: npm run build
+      - name: Build action
+        run: npm run build
 
-            - name: Upload action artifact
-              uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-              with:
-                  name: action-dist
-                  path: dist
+      - name: Upload action artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: action-dist
+          path: dist
 
-    test:
-        name: Test Action
-        runs-on: ubuntu-latest
-        needs: build
+  test:
+    name: Test Action
+    runs-on: ubuntu-latest
+    needs: build
 
-        strategy:
-            max-parallel: 1
-            matrix:
-                include:
-                    - ref: ${{ github.ref }}
-                      fail_on_warning: false
-                    - ref: "__default__"
-                      fail_on_warning: false
-                    - ref: |
-                          - ${{ github.ref }}
-                          - ${{ github.ref }}
-                      fail_on_warning: false
-                    - ref: "[${{ github.ref }}, ${{ github.ref }}]"
-                      fail_on_warning: false
-                    - ref: "__default__"
-                      fail_on_warning: true
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - ref: ${{ github.ref }}
+            fail_on_warning: false
+          - ref: "__default__"
+            fail_on_warning: false
+          - ref: |
+              - ${{ github.ref }}
+              - ${{ github.ref }}
+            fail_on_warning: false
+          - ref: "[${{ github.ref }}, ${{ github.ref }}]"
+            fail_on_warning: false
+          - ref: "__default__"
+            fail_on_warning: true
 
-        permissions:
-            actions: write
+    permissions:
+      actions: write
 
-        steps:
-            - name: Create test file
-              run: |
-                  mkdir -p test-cache
-                  echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
+    steps:
+      - name: Create test file
+        run: |
+          mkdir -p test-cache
+          echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
 
-            - name: Create cache
-              uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-              with:
-                  path: test-cache
-                  key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
+      - name: Create cache
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: test-cache
+          key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
 
-            - name: Checkout repository
-              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-              with:
-                  sparse-checkout: action.yml
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          sparse-checkout: action.yml
 
-            - name: Download action artifact
-              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-              with:
-                  name: action-dist
-                  path: dist
+      - name: Download action artifact
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: action-dist
+          path: dist
 
-            - name: Run test case (with ref)
-              if: matrix.ref != '__default__'
-              uses: ./
-              continue-on-error: ${{ matrix.fail_on_warning }}
-              with:
-                  github-token: ${{ github.token }}
-                  ref: ${{ matrix.ref }}
-                  fail-on-warning: ${{ matrix.fail_on_warning }}
+      - name: Run test case (with ref)
+        if: matrix.ref != '__default__'
+        uses: ./
+        continue-on-error: ${{ matrix.fail_on_warning }}
+        with:
+          github-token: ${{ github.token }}
+          ref: ${{ matrix.ref }}
+          fail-on-warning: ${{ matrix.fail_on_warning }}
 
-            - name: Run test case (without ref)
-              if: matrix.ref == '__default__'
-              uses: ./
-              continue-on-error: ${{ matrix.fail_on_warning }}
-              with:
-                  github-token: ${{ github.token }}
-                  fail-on-warning: ${{ matrix.fail_on_warning }}
+      - name: Run test case (without ref)
+        if: matrix.ref == '__default__'
+        uses: ./
+        continue-on-error: ${{ matrix.fail_on_warning }}
+        with:
+          github-token: ${{ github.token }}
+          fail-on-warning: ${{ matrix.fail_on_warning }}
 
-            - name: Try to restore cache
-              id: restore-cache
-              uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-              with:
-                  path: test-cache
-                  key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
+      - name: Try to restore cache
+        id: restore-cache
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: test-cache
+          key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
 
-            - name: Verify cache deletion
-              run: |
-                  if [ ${{ steps.restore-cache.outputs.cache-hit }} ]; then
-                      echo "Cache was not deleted properly."
-                      exit 1
-                  else
-                      echo "Cache deletion verified."
-                  fi
+      - name: Verify cache deletion
+        run: |
+          if [ ${{ steps.restore-cache.outputs.cache-hit }} ]; then
+              echo "Cache was not deleted properly."
+              exit 1
+          else
+              echo "Cache deletion verified."
+          fi
 
-    commit-build:
-        name: Commit Action Build
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main'
-        needs: test
+  commit-build:
+    name: Commit Action Build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: test
 
-        permissions:
-            contents: write
+    permissions:
+      contents: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-            - name: Download action artifact
-              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-              with:
-                  name: action-dist
-                  path: dist
+      - name: Download action artifact
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: action-dist
+          path: dist
 
-            - name: Check for repo changes
-              id: changes
-              run: |
-                  if [ -n "$(git status --porcelain --untracked-files=all dist)" ]; then
-                    echo "changes=true" >> "$GITHUB_OUTPUT"
-                  else
-                    echo "changes=false" >> "$GITHUB_OUTPUT"
-                  fi
+      - name: Check for repo changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain --untracked-files=all dist)" ]; then
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          fi
 
-            - name: Commit dist directory
-              if: steps.changes.outputs.changes == 'true'
-              uses: suzuki-shunsuke/commit-action@f28421acc277a6d6a9c1f94ea449076ad77dba67 # v0.1.0
-              with:
-                  commit_message: "📦 Update action build [skip ci]"
-                  files: dist/
-                  fail_on_self_push: false
+      - name: Commit dist directory
+        if: steps.changes.outputs.changes == 'true'
+        uses: suzuki-shunsuke/commit-action@f28421acc277a6d6a9c1f94ea449076ad77dba67 # v0.1.0
+        with:
+          commit_message: "📦 Update action build [skip ci]"
+          files: dist/
+          fail_on_self_push: false
