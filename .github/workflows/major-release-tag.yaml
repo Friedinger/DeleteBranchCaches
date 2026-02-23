@@ -8,6 +8,8 @@ jobs:
   update-major:
     name: Update Major Release Tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
