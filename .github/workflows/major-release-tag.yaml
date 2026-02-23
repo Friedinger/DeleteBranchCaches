@@ -1,0 +1,23 @@
+name: Update Major Release Tag
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-major:
+    name: Update Major Release Tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Move major tag to new release
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          MAJOR_VERSION=${VERSION%%.*}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v$VERSION"
+          git push origin "${MAJOR_VERSION}" --force
