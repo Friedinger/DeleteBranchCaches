@@ -22,5 +22,5 @@ jobs:
           MAJOR_VERSION=${VERSION%%.*}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v$VERSION"
+          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to $VERSION"
           git push origin "${MAJOR_VERSION}" --force
