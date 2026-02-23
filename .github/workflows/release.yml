@@ -8,13 +8,12 @@ on:
         description: "The version to release (e.g., 1.2.3). The 'v' prefix is added automatically."
         required: true
 
-permissions:
-  contents: write
-
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       VERSION: ${{ github.event.inputs.version }}
 
@@ -69,22 +68,3 @@ jobs:
           name: "🔖 DeleteBranchCaches v${{ env.VERSION }}"
           draft: true
           prerelease: false
-
-  update-major:
-    name: Update Major Release Tag
-    runs-on: ubuntu-latest
-    needs: release
-    env:
-      VERSION: ${{ github.event.inputs.version }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Update Major Release Tag
-        run: |
-          MAJOR_VERSION="v$(echo "$VERSION" | cut -d. -f1)"
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -fa "${MAJOR_VERSION}" -m "🔖 Update major version tag to v$VERSION"
-          git push origin "${MAJOR_VERSION}" --force
