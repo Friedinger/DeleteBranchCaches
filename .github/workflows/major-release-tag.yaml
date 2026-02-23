@@ -8,6 +8,7 @@ jobs:
   update-major:
     name: Update Major Release Tag
     runs-on: ubuntu-latest
+    if: ${{ !github.event.release.prerelease && !github.event.release.draft }}
     permissions:
       contents: write
 
