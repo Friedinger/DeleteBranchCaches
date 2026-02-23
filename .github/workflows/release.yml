@@ -8,13 +8,12 @@ on:
         description: "The version to release (e.g., 1.2.3). The 'v' prefix is added automatically."
         required: true
 
-permissions:
-  contents: write
-
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       VERSION: ${{ github.event.inputs.version }}
 
