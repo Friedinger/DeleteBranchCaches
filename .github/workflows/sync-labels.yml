@@ -10,6 +10,6 @@ on:
 
 jobs:
   run:
-    uses: Friedinger/Configs/.github/workflows/action-sync-labels.yml@main
+    uses: Friedinger/Configs/.github/workflows/action-sync-labels.yml@d785a0be35c0beb0ab714751f0e32e2878e5c5c0 # main
     permissions:
       issues: write
