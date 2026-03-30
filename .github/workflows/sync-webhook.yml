@@ -10,7 +10,7 @@ on:
 
 jobs:
   run:
-    uses: Friedinger/configs/.github/workflows/action-sync-webhook.yml@main
+    uses: Friedinger/configs/.github/workflows/action-sync-webhook.yml@1010d86e59d6446d2726d14d82662a6d8b5ef490 # main
     secrets:
       WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
       WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
