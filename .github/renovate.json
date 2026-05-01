@@ -1,4 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>Friedinger/Configs//renovate/recommended.json"]
+  "extends": ["github>Friedinger/Configs//renovate/recommended.json#1.1.0"]
 }
