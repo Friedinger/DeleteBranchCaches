@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { CacheEntry, runAction, setupOctokitMocks } from "./utils";
+import { CacheEntry, setupOctokitMocks } from "./utils";
 import type * as CoreType from "@actions/core";
 import type { Octokit } from "@octokit/rest";
+import { main } from "../src/main";
 
 vi.mock("@actions/core");
 vi.mock("@actions/github", () => ({
@@ -41,9 +42,7 @@ describe("error handling", () => {
       return "";
     });
 
-    await runAction();
-
-    expect(core.setFailed).toHaveBeenCalledWith("❌ Test error");
+    await expect(main()).rejects.toThrow("Test error");
   });
 
   it("warns when cache.id is missing and does not call delete API", async () => {
@@ -56,7 +55,7 @@ describe("error handling", () => {
       return "";
     });
 
-    await runAction();
+    await main();
 
     expect(deleteActionsCacheById).not.toHaveBeenCalled();
     expect(core.warning).toHaveBeenCalledWith(
