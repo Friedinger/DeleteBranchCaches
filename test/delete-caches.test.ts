@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { setupOctokitMocks, runAction } from "./utils";
+import { setupOctokitMocks } from "./utils";
 import type * as CoreType from "@actions/core";
 import type { Octokit } from "@octokit/rest";
+import { main } from "../src/main";
 
 vi.mock("@actions/core");
 vi.mock("@actions/github", () => ({
@@ -46,7 +47,7 @@ describe("delete caches", () => {
       return "";
     });
 
-    await runAction();
+    await main();
 
     expect(getActionsCacheList).toHaveBeenCalledWith({
       owner: "test-owner",
@@ -74,7 +75,7 @@ describe("delete caches", () => {
       return "";
     });
 
-    await runAction();
+    await main();
 
     expect(getActionsCacheList).toHaveBeenCalledWith({
       owner: "test-owner",
@@ -99,7 +100,7 @@ describe("delete caches", () => {
       return "";
     });
 
-    await runAction();
+    await main();
 
     expect(getActionsCacheList).toHaveBeenCalledWith({
       owner: "test-owner",

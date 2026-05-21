@@ -6,10 +6,6 @@ export interface CacheEntry {
   size_in_bytes?: number;
 }
 
-export async function runAction() {
-  await import("../src/index");
-}
-
 export function setupOctokitMocks(
   octokit: typeof Octokit,
   caches: CacheEntry[],
