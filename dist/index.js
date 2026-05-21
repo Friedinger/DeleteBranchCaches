@@ -44926,7 +44926,7 @@ function formatSize(bytes) {
 
 ;// CONCATENATED MODULE: ./package.json
 const package_namespaceObject = {"rE":"2.4.1"};
-;// CONCATENATED MODULE: ./src/index.ts
+;// CONCATENATED MODULE: ./src/main.ts
 
 
 
@@ -44935,7 +44935,6 @@ const package_namespaceObject = {"rE":"2.4.1"};
 
 let octokit;
 let hadWarning = false;
-main().catch((err) => setFailed(`❌ ${err.message}`));
 async function main() {
     const token = getInput("github-token", { required: true });
     const refsInput = getInput("ref", { required: true });
@@ -44991,4 +44990,9 @@ async function deleteCache(cache) {
         return { success: false, size: 0 };
     }
 }
+
+;// CONCATENATED MODULE: ./src/index.ts
+
+
+main().catch((err) => setFailed(`❌ ${err.message}`));
 
