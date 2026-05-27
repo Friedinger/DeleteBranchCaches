@@ -6,6 +6,6 @@ on:
 
 jobs:
   run:
-    uses: Friedinger/configs/.github/workflows/action-conventions.yml@704b29288880186b96bda072068735a8a7c9e112 # v1.2.1
+    uses: Friedinger/configs/.github/workflows/action-conventions.yml@6bf9f3725ccc8b59f39c62672cfd7b626ebba33c # v1.2.2
     permissions:
       pull-requests: write
