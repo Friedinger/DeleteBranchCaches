@@ -45061,7 +45061,7 @@ function formatSize(bytes) {
 }
 
 ;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {"rE":"2.4.2"};
+const package_namespaceObject = {"rE":"2.4.3"};
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
