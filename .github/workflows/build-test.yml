@@ -104,7 +104,7 @@ jobs:
 
       - name: Verify cache deletion
         run: |
-          if [ ${{ steps.restore-cache.outputs.cache-hit }} ]; then
+          if [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
               echo "Cache was not deleted properly."
               exit 1
           else
