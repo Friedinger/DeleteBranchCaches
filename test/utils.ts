@@ -5,6 +5,8 @@ export interface CacheEntry {
   id: number;
   key?: string;
   size_in_bytes?: number;
+  created_at?: string;
+  last_accessed_at?: string;
 }
 
 export function setupOctokitMocks(
