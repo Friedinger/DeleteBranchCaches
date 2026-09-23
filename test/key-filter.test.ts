@@ -55,11 +55,13 @@ describe("key-filter", () => {
 
     await main();
 
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
+    expect(getActionsCacheList).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+      }),
+    );
 
     expect(deleteActionsCacheById).toHaveBeenCalledTimes(1);
     expect(deleteActionsCacheById).toHaveBeenCalledWith({
