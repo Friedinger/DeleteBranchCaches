@@ -26,6 +26,10 @@ inputs:
     description: Only delete caches whose key matches the given glob pattern (e.g. 'npm-*'), combined with ref
     required: false
     default: ""
+  max-age:
+    description: Only delete caches older than the given duration (e.g. '7d', '24h', '30m'), combined with ref
+    required: false
+    default: ""
 
 runs:
   using: "node24"
