@@ -22,7 +22,8 @@
     "build": "npx ncc build src/index.ts -o dist --license licenses.txt",
     "test": "vitest run",
     "lint": "prettier . --check && eslint .",
-    "fix": "prettier . --write && eslint . --fix"
+    "fix": "prettier . --write && eslint . --fix",
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
   },
   "dependencies": {
     "@actions/core": "3.0.1",
