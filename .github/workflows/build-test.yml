@@ -56,6 +56,9 @@ jobs:
             fail_on_warning: false
           - ref: "__default__"
             fail_on_warning: true
+          - ref: "__default__"
+            fail_on_warning: false
+            dry_run: true
 
     permissions:
       actions: write
@@ -86,6 +89,7 @@ jobs:
           github-token: ${{ github.token }}
           ref: ${{ matrix.ref }}
           fail-on-warning: ${{ matrix.fail_on_warning }}
+          dry-run: ${{ matrix.dry_run }}
 
       - name: Run test case (without ref)
         if: matrix.ref == '__default__'
@@ -94,6 +98,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           fail-on-warning: ${{ matrix.fail_on_warning }}
+          dry-run: ${{ matrix.dry_run }}
 
       - name: Try to restore cache
         id: restore-cache
@@ -104,7 +109,14 @@ jobs:
 
       - name: Verify cache deletion
         run: |
-          if [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
+          if [ "${{ matrix.dry_run }}" = 'true' ]; then
+              if [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
+                  echo "Cache retained as expected (dry run)."
+              else
+                  echo "Cache was deleted despite dry run."
+                  exit 1
+              fi
+          elif [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
               echo "Cache was not deleted properly."
               exit 1
           else
