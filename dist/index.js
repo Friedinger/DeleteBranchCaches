@@ -45820,17 +45820,15 @@ function escapeRegex(text) {
 
 
 
-async function deleteCachesForRef(ref, dryRun, keyFilter, octokit) {
+async function deleteCachesForRef(ref, dryRun, keyFilter, maxAgeMs, octokit) {
     const caches = await getCachesForRef(ref, octokit);
-    const filteredCaches = keyFilter
-        ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
-        : caches;
-    const count = filteredCaches.length;
+    const relevantCaches = filterCaches(caches, keyFilter, maxAgeMs);
+    const count = relevantCaches.length;
     let deletedSize = 0;
     let deletedCount = 0;
     let warnings = 0;
     info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
-    for (const cache of filteredCaches) {
+    for (const cache of relevantCaches) {
         if (dryRun) {
             info(`🧹 Would delete ${formatCache(cache)}`);
             deletedSize += cache.size_in_bytes ?? 0;
@@ -45863,6 +45861,23 @@ async function getCachesForRef(ref, octokit) {
         page++;
     }
     return caches;
+}
+function filterCaches(caches, keyFilter, maxAgeMs) {
+    const filteredCaches = keyFilter
+        ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
+        : caches;
+    const cutoff = maxAgeMs === undefined ? undefined : Date.now() - maxAgeMs;
+    const relevantCaches = cutoff === undefined
+        ? filteredCaches
+        : filteredCaches.filter((cache) => cacheCreated(cache) < cutoff);
+    const keptCount = filteredCaches.length - relevantCaches.length;
+    if (keptCount > 0) {
+        info(`🗄️ Kept ${keptCount} cache${keptCount === 1 ? "" : "s"} with age below max-age.`);
+    }
+    return relevantCaches;
+}
+function cacheCreated(cache) {
+    return new Date(cache.last_accessed_at ?? cache.created_at ?? "").getTime();
 }
 function formatCache(cache) {
     return `cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", size ${formatSize(cache.size_in_bytes ?? 0)}, created at ${formatDate(cache.created_at ?? "")}`;
@@ -45904,7 +45919,24 @@ function parseRefs(refsInput) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/maxAge.ts
+const MULTIPLIERS = {
+    m: 60_000,
+    h: 3_600_000,
+    d: 86_400_000,
+};
+function parseMaxAge(input) {
+    if (input === "")
+        return undefined;
+    const match = /^(\d+)([mhd])$/i.exec(input);
+    if (!match) {
+        throw new Error(`Invalid max-age "${input}". Expected a number followed by m, h or d (e.g. 7d, 24h, 30m).`);
+    }
+    return Number(match[1]) * MULTIPLIERS[match[2].toLowerCase()];
+}
+
 ;// CONCATENATED MODULE: ./src/inputs.ts
+
 
 
 function parseInputs() {
@@ -45913,12 +45945,14 @@ function parseInputs() {
     const failOnWarning = getInput("fail-on-warning") === "true";
     const dryRun = getInput("dry-run") === "true";
     const keyFilter = getInput("key-filter");
+    const maxAge = parseMaxAge(getInput("max-age"));
     return {
         token,
         refs: parseRefs(refsInput),
         failOnWarning,
         dryRun,
         keyFilter,
+        maxAge,
     };
 }
 
@@ -45932,14 +45966,14 @@ const package_namespaceObject = {"rE":"2.4.5"};
 
 
 async function main() {
-    const { token, refs, failOnWarning, dryRun, keyFilter } = parseInputs();
+    const { token, refs, failOnWarning, dryRun, keyFilter, maxAge } = parseInputs();
     const octokit = new dist_src_Octokit({ auth: token });
     info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_namespaceObject.rE}`);
     let deletedSize = 0;
     let totalCaches = 0;
     let warningsCount = 0;
     for (const ref of refs) {
-        const { size, count, warnings } = await deleteCachesForRef(ref, dryRun, keyFilter, octokit);
+        const { size, count, warnings } = await deleteCachesForRef(ref, dryRun, keyFilter, maxAge, octokit);
         deletedSize += size;
         totalCaches += count;
         warningsCount += warnings;
