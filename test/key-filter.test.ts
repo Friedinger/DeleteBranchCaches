@@ -109,6 +109,7 @@ describe("key-filter", () => {
     const { deleteActionsCacheById } = setupOctokitMocks(octokit, [
       { id: 1, key: "npm-1", size_in_bytes: 100 },
       { id: 2, key: "build-2", size_in_bytes: 200 },
+      { id: 3 },
     ]);
 
     mockInputs({ "key-filter": "npm-*", "dry-run": "true" });

@@ -28,7 +28,7 @@ export async function deleteCachesForRef(
     })
   ).data.actions_caches;
   const filteredCaches = keyFilter
-    ? caches.filter((cache) => matchesKeyFilter(cache.key, keyFilter))
+    ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
     : caches;
   const count = filteredCaches.length;
   let deletedSize = 0;
