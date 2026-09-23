@@ -3,6 +3,7 @@ import { vi } from "vitest";
 
 export interface CacheEntry {
   id: number;
+  key?: string;
   size_in_bytes?: number;
 }
 

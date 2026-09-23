@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type { Octokit } from "@octokit/rest";
 import { formatDate, formatSize } from "./formatter";
+import { matchesKeyFilter } from "./keyFilter";
 
 type Cache = Awaited<
   ReturnType<Octokit["rest"]["actions"]["getActionsCacheList"]>
@@ -16,21 +17,27 @@ export interface DeleteRefResult {
 export async function deleteCachesForRef(
   ref: string,
   dryRun: boolean,
+  keyFilter: string,
   octokit: Octokit,
 ): Promise<DeleteRefResult> {
-  const caches = await octokit.rest.actions.getActionsCacheList({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    ref: ref,
-  });
-  const count = caches.data.actions_caches.length;
+  const caches = (
+    await octokit.rest.actions.getActionsCacheList({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      ref: ref,
+    })
+  ).data.actions_caches;
+  const filteredCaches = keyFilter
+    ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
+    : caches;
+  const count = filteredCaches.length;
   let deletedSize = 0;
   let deletedCount = 0;
   let warnings = 0;
   core.info(
     `📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`,
   );
-  for (const cache of caches.data.actions_caches) {
+  for (const cache of filteredCaches) {
     if (dryRun) {
       core.info(`🧹 Would delete ${formatCache(cache)}`);
       deletedSize += cache.size_in_bytes ?? 0;

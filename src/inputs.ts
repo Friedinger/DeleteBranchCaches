@@ -6,11 +6,13 @@ export function parseInputs() {
   const refsInput = core.getInput("ref", { required: true });
   const failOnWarning = core.getInput("fail-on-warning") === "true";
   const dryRun = core.getInput("dry-run") === "true";
+  const keyFilter = core.getInput("key-filter");
 
   return {
     token,
     refs: parseRefs(refsInput),
     failOnWarning,
     dryRun,
+    keyFilter,
   };
 }

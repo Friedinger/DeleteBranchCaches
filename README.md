@@ -10,7 +10,8 @@ A GitHub Action to delete all caches associated with a specific branch reference
 ## Features
 
 - Deletes all GitHub Actions caches for a given branch (`ref`)
-- Useful for cleaning up storage and avoiding stale caches
+- Supports dry-run mode to preview cache deletions without deleting them
+- Supports filtering caches by key glob pattern (e.g. only delete caches with key prefix `npm-`)
 
 ## Usage
 
@@ -41,6 +42,7 @@ This is required to allow the action to delete caches.
 | ref             | The branches ref to delete caches for (e.g. `refs/heads/main`), can be a single string or a yaml list | true     | `${{ github.ref }}`   |
 | fail-on-warning | Fail the action if a warning occurs during cache deletion                                             | false    | `false`               |
 | dry-run         | List the caches that would be deleted without deleting them                                           | false    | `false`               |
+| key-filter      | Only delete caches whose key matches the glob pattern (e.g. `npm-*`), combined with `ref`             | false    | `""`                  |
 
 #### Notes
 
@@ -76,6 +78,20 @@ ref: "['refs/heads/branch-1', 'refs/heads/branch-2']"
 - The action automatically detects the format and processes all variants correctly.
 - For lists, the YAML list or array syntax is recommended for best readability.
 - Sadly, directly passing an array like `ref: [refs/heads/branch-1, refs/heads/branch-2]` does not work due to GitHub only supporting strings for inputs.
+
+### Input options for `key-filter`
+
+The `key-filter` input is optional. When set, only caches whose key matches the given glob pattern are deleted (or listed with `dry-run`), combined with `ref` using AND semantics.
+
+Matching rules:
+
+- `*` matches any sequence of characters (e.g. `npm-*` matches `npm-1`, `npm-lock`)
+- A pattern without `*` matches the cache key exactly (e.g. `npm-1` matches only `npm-1`)
+- Matching is case-sensitive
+
+```yaml
+key-filter: "npm-*"
+```
 
 ## Example Workflow
 
