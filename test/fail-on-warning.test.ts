@@ -32,7 +32,6 @@ describe("fail-on-warning behavior", () => {
   });
 
   afterEach(() => {
-    vi.resetModules();
     vi.resetAllMocks();
   });
 

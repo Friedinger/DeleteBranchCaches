@@ -32,7 +32,6 @@ describe("dry-run mode", () => {
   });
 
   afterEach(() => {
-    vi.resetModules();
     vi.resetAllMocks();
   });
 

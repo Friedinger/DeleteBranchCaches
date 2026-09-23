@@ -32,7 +32,6 @@ describe("delete caches", () => {
   });
 
   afterEach(() => {
-    vi.resetModules();
     vi.resetAllMocks();
   });
 
