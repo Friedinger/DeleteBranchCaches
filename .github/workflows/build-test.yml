@@ -59,6 +59,9 @@ jobs:
           - ref: "__default__"
             fail_on_warning: false
             dry_run: true
+          - ref: "__default__"
+            fail_on_warning: false
+            key_filter: "test-cache-secondary-*"
 
     permissions:
       contents: read
@@ -69,12 +72,23 @@ jobs:
         run: |
           mkdir -p test-cache
           echo "Creating cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache/test.txt
+          if [ "${{ matrix.key_filter }}" != '' ]; then
+            mkdir -p test-cache-secondary
+            echo "Creating second cache for ${{ github.ref }} on ${{ github.sha }} for job ${{ strategy.job-index }}" > test-cache-secondary/test.txt
+          fi
 
       - name: Create cache
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: test-cache
           key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
+
+      - name: Create second cache
+        if: matrix.key_filter != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: test-cache-secondary
+          key: test-cache-secondary-${{ github.run_id }}-${{ strategy.job-index }}
 
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -93,6 +107,7 @@ jobs:
           github-token: ${{ github.token }}
           ref: ${{ matrix.ref }}
           fail-on-warning: ${{ matrix.fail_on_warning }}
+          key-filter: ${{ matrix.key_filter }}
           dry-run: ${{ matrix.dry_run }}
 
       - name: Run test case (without ref)
@@ -102,6 +117,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           fail-on-warning: ${{ matrix.fail_on_warning }}
+          key-filter: ${{ matrix.key_filter }}
           dry-run: ${{ matrix.dry_run }}
 
       - name: Try to restore cache
@@ -111,9 +127,30 @@ jobs:
           path: test-cache
           key: test-cache-${{ github.run_id }}-${{ strategy.job-index }}
 
+      - name: Try to restore second cache
+        id: restore-secondary-cache
+        if: matrix.key_filter != ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: test-cache-secondary
+          key: test-cache-secondary-${{ github.run_id }}-${{ strategy.job-index }}
+
       - name: Verify cache deletion
         run: |
-          if [ "${{ matrix.dry_run }}" = 'true' ]; then
+          if [ "${{ matrix.key_filter }}" != '' ]; then
+              if [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
+                  echo "Cache with non-matching key retained."
+              else
+                  echo "Cache with non-matching key was deleted despite key-filter."
+                  exit 1
+              fi
+              if [ "${{ steps.restore-secondary-cache.outputs.cache-hit }}" = 'true' ]; then
+                  echo "Cache with matching key was not deleted."
+                  exit 1
+              else
+                  echo "Cache with matching key deleted."
+              fi
+          elif [ "${{ matrix.dry_run }}" = 'true' ]; then
               if [ "${{ steps.restore-cache.outputs.cache-hit }}" = 'true' ]; then
                   echo "Cache retained as expected (dry run)."
               else
