@@ -142,6 +142,16 @@ npm install
 npm run build
 ```
 
+The `dist/` output is committed by CI on `main` and must not be committed locally. A pre-commit hook blocks local `dist` commits; it is enabled automatically by `npm install`.
+
+To enable the hook manually or after a fresh clone without install:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+Set `ALLOW_DIST_COMMIT=true` to force a manual dist commit.
+
 ## License
 
 [MIT License](LICENSE) © 2026 Friedinger
