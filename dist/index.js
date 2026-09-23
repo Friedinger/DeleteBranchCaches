@@ -45806,22 +45806,35 @@ function getOctokit(token, options, ...additionalPlugins) {
     return new GitHubWithPlugins(getOctokitOptions(token, options));
 }
 //# sourceMappingURL=github.js.map
+;// CONCATENATED MODULE: ./src/keyFilter.ts
+function matchesKeyFilter(key, pattern) {
+    const regex = new RegExp(`^${pattern.split("*").map(escapeRegex).join(".*")}$`);
+    return regex.test(key);
+}
+function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 ;// CONCATENATED MODULE: ./src/deleteCaches.ts
 
 
 
-async function deleteCachesForRef(ref, dryRun, octokit) {
-    const caches = await octokit.rest.actions.getActionsCacheList({
+
+async function deleteCachesForRef(ref, dryRun, keyFilter, octokit) {
+    const caches = (await octokit.rest.actions.getActionsCacheList({
         owner: github_context.repo.owner,
         repo: github_context.repo.repo,
         ref: ref,
-    });
-    const count = caches.data.actions_caches.length;
+    })).data.actions_caches;
+    const filteredCaches = keyFilter
+        ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
+        : caches;
+    const count = filteredCaches.length;
     let deletedSize = 0;
     let deletedCount = 0;
     let warnings = 0;
     info(`📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`);
-    for (const cache of caches.data.actions_caches) {
+    for (const cache of filteredCaches) {
         if (dryRun) {
             info(`🧹 Would delete ${formatCache(cache)}`);
             deletedSize += cache.size_in_bytes ?? 0;
@@ -45885,11 +45898,13 @@ function parseInputs() {
     const refsInput = getInput("ref", { required: true });
     const failOnWarning = getInput("fail-on-warning") === "true";
     const dryRun = getInput("dry-run") === "true";
+    const keyFilter = getInput("key-filter");
     return {
         token,
         refs: parseRefs(refsInput),
         failOnWarning,
         dryRun,
+        keyFilter,
     };
 }
 
@@ -45903,14 +45918,14 @@ const package_namespaceObject = {"rE":"2.4.5"};
 
 
 async function main() {
-    const { token, refs, failOnWarning, dryRun } = parseInputs();
+    const { token, refs, failOnWarning, dryRun, keyFilter } = parseInputs();
     const octokit = new dist_src_Octokit({ auth: token });
     info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_namespaceObject.rE}`);
     let deletedSize = 0;
     let totalCaches = 0;
     let warningsCount = 0;
     for (const ref of refs) {
-        const { size, count, warnings } = await deleteCachesForRef(ref, dryRun, octokit);
+        const { size, count, warnings } = await deleteCachesForRef(ref, dryRun, keyFilter, octokit);
         deletedSize += size;
         totalCaches += count;
         warningsCount += warnings;
