@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type { Octokit } from "@octokit/rest";
-import { formatDate } from "./formatter";
+import { formatDate, formatSize } from "./formatter";
 
 type Cache = Awaited<
   ReturnType<Octokit["rest"]["actions"]["getActionsCacheList"]>
@@ -48,7 +48,9 @@ export async function deleteCachesForRef(
 function formatCache(cache: Cache): string {
   return `cache ${cache.id} with key "${cache.key}" on ref "${
     cache.ref
-  }", created at ${formatDate(cache.created_at ?? "")}`;
+  }", size ${formatSize(cache.size_in_bytes ?? 0)}, created at ${formatDate(
+    cache.created_at ?? "",
+  )}`;
 }
 
 async function deleteCache(
