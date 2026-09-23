@@ -45821,11 +45821,7 @@ function escapeRegex(text) {
 
 
 async function deleteCachesForRef(ref, dryRun, keyFilter, octokit) {
-    const caches = (await octokit.rest.actions.getActionsCacheList({
-        owner: github_context.repo.owner,
-        repo: github_context.repo.repo,
-        ref: ref,
-    })).data.actions_caches;
+    const caches = await getCachesForRef(ref, octokit);
     const filteredCaches = keyFilter
         ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
         : caches;
@@ -45849,6 +45845,24 @@ async function deleteCachesForRef(ref, dryRun, keyFilter, octokit) {
             warnings++;
     }
     return { size: deletedSize, count: deletedCount, warnings };
+}
+async function getCachesForRef(ref, octokit) {
+    const caches = [];
+    let page = 1;
+    while (true) {
+        const { data } = await octokit.rest.actions.getActionsCacheList({
+            owner: github_context.repo.owner,
+            repo: github_context.repo.repo,
+            ref: ref,
+            per_page: 100,
+            page: page,
+        });
+        caches.push(...data.actions_caches);
+        if (data.actions_caches.length < 100)
+            break;
+        page++;
+    }
+    return caches;
 }
 function formatCache(cache) {
     return `cache ${cache.id} with key "${cache.key}" on ref "${cache.ref}", size ${formatSize(cache.size_in_bytes ?? 0)}, created at ${formatDate(cache.created_at ?? "")}`;
