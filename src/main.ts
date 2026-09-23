@@ -1,16 +1,12 @@
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
-import { parseRefs } from "./parseRefs";
 import { formatSize } from "./formatter";
 import { deleteCachesForRef } from "./deleteCaches";
+import { parseInputs } from "./inputs";
 import packageJson from "../package.json";
 
 export async function main(): Promise<void> {
-  const token = core.getInput("github-token", { required: true });
-  const refsInput = core.getInput("ref", { required: true });
-  const failOnWarning = core.getInput("fail-on-warning") === "true";
-  const dryRun = core.getInput("dry-run") === "true";
-  const refs = parseRefs(refsInput);
+  const { token, refs, failOnWarning, dryRun } = parseInputs();
   const octokit = new Octokit({ auth: token });
   core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${packageJson.version}`);
 
