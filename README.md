@@ -40,6 +40,7 @@ This is required to allow the action to delete caches.
 | github-token    | GitHub token to use for authentication                                                                | true     | `${{ github.token }}` |
 | ref             | The branches ref to delete caches for (e.g. `refs/heads/main`), can be a single string or a yaml list | true     | `${{ github.ref }}`   |
 | fail-on-warning | Fail the action if a warning occurs during cache deletion                                             | false    | `false`               |
+| dry-run         | List the caches that would be deleted without deleting them                                           | false    | `false`               |
 
 #### Notes
 

@@ -16,6 +16,7 @@ export async function main(): Promise<void> {
   const token = core.getInput("github-token", { required: true });
   const refsInput = core.getInput("ref", { required: true });
   const failOnWarning = core.getInput("fail-on-warning") === "true";
+  const dryRun = core.getInput("dry-run") === "true";
   const refs = parseRefs(refsInput);
   octokit = new Octokit({ auth: token });
   core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${packageJson.version}`);
@@ -23,12 +24,12 @@ export async function main(): Promise<void> {
   let deletedSize = 0;
   let totalCaches = 0;
   for (const ref of refs) {
-    const { size, count } = await deleteCachesForRef(ref);
+    const { size, count } = await deleteCachesForRef(ref, dryRun);
     deletedSize += size;
     totalCaches += count;
   }
   core.info(
-    `✅ Deleted ${totalCaches} cache${
+    `${dryRun ? "🚫 Dry run: would delete" : "✅ Deleted"} ${totalCaches} cache${
       totalCaches === 1 ? "" : "s"
     } with a total size of ${formatSize(deletedSize)}.`,
   );
@@ -39,6 +40,7 @@ export async function main(): Promise<void> {
 
 async function deleteCachesForRef(
   ref: string,
+  dryRun: boolean,
 ): Promise<{ size: number; count: number }> {
   const caches = await octokit.rest.actions.getActionsCacheList({
     owner: github.context.repo.owner,
@@ -52,11 +54,23 @@ async function deleteCachesForRef(
     `📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`,
   );
   for (const cache of caches.data.actions_caches) {
+    if (dryRun) {
+      core.info(`🧹 Would delete ${formatCache(cache)}`);
+      deletedSize += cache.size_in_bytes ?? 0;
+      deletedCount++;
+      continue;
+    }
     const { success, size } = await deleteCache(cache);
     if (success) deletedCount++;
     deletedSize += size;
   }
   return { size: deletedSize, count: deletedCount };
+}
+
+function formatCache(cache: Cache): string {
+  return `cache ${cache.id} with key "${cache.key}" on ref "${
+    cache.ref
+  }", created at ${formatDate(cache.created_at ?? "")}`;
 }
 
 async function deleteCache(
@@ -69,11 +83,7 @@ async function deleteCache(
       repo: github.context.repo.repo,
       cache_id: cache.id,
     });
-    core.info(
-      `🗑️ Deleted cache ${cache.id} with key "${cache.key}" on ref "${
-        cache.ref
-      }", created at ${formatDate(cache.created_at ?? "")}`,
-    );
+    core.info(`🗑️ Deleted ${formatCache(cache)}`);
     return { success: true, size: cache.size_in_bytes ?? 0 };
   } catch (error) {
     hadWarning = true;
