@@ -20,13 +20,7 @@ export async function deleteCachesForRef(
   keyFilter: string,
   octokit: Octokit,
 ): Promise<DeleteRefResult> {
-  const caches = (
-    await octokit.rest.actions.getActionsCacheList({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      ref: ref,
-    })
-  ).data.actions_caches;
+  const caches = await getCachesForRef(ref, octokit);
   const filteredCaches = keyFilter
     ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
     : caches;
@@ -50,6 +44,27 @@ export async function deleteCachesForRef(
     if (warning) warnings++;
   }
   return { size: deletedSize, count: deletedCount, warnings };
+}
+
+async function getCachesForRef(
+  ref: string,
+  octokit: Octokit,
+): Promise<Cache[]> {
+  const caches: Cache[] = [];
+  let page = 1;
+  while (true) {
+    const { data } = await octokit.rest.actions.getActionsCacheList({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      ref: ref,
+      per_page: 100,
+      page: page,
+    });
+    caches.push(...data.actions_caches);
+    if (data.actions_caches.length < 100) break;
+    page++;
+  }
+  return caches;
 }
 
 function formatCache(cache: Cache): string {

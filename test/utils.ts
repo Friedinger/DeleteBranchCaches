@@ -27,9 +27,14 @@ export function setupOctokitMocks(
 }
 
 export function makeActionsMocks(caches: CacheEntry[]) {
-  const getActionsCacheList = vi.fn().mockResolvedValue({
-    data: { total_count: caches.length, actions_caches: caches },
-  });
+  const getActionsCacheList = vi
+    .fn()
+    .mockImplementation(async ({ page = 1 }: { page?: number } = {}) => ({
+      data: {
+        total_count: caches.length,
+        actions_caches: caches.slice((page - 1) * 100, page * 100),
+      },
+    }));
   const deleteActionsCacheById = vi.fn().mockResolvedValue({});
 
   return { getActionsCacheList, deleteActionsCacheById };

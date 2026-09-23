@@ -48,11 +48,13 @@ describe("delete caches", () => {
 
     await main();
 
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
+    expect(getActionsCacheList).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+      }),
+    );
 
     expect(deleteActionsCacheById).toHaveBeenCalledTimes(1);
     expect(core.info).toHaveBeenCalledWith(
@@ -76,11 +78,13 @@ describe("delete caches", () => {
 
     await main();
 
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
+    expect(getActionsCacheList).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+      }),
+    );
 
     expect(deleteActionsCacheById).toHaveBeenCalledTimes(2);
     expect(core.info).toHaveBeenCalledWith(
@@ -101,11 +105,13 @@ describe("delete caches", () => {
 
     await main();
 
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
+    expect(getActionsCacheList).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+      }),
+    );
 
     expect(deleteActionsCacheById).toHaveBeenCalledTimes(2);
 
