@@ -18,20 +18,19 @@ export async function deleteCachesForRef(
   ref: string,
   dryRun: boolean,
   keyFilter: string,
+  maxAgeMs: number | undefined,
   octokit: Octokit,
 ): Promise<DeleteRefResult> {
   const caches = await getCachesForRef(ref, octokit);
-  const filteredCaches = keyFilter
-    ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
-    : caches;
-  const count = filteredCaches.length;
+  const relevantCaches = filterCaches(caches, keyFilter, maxAgeMs);
+  const count = relevantCaches.length;
   let deletedSize = 0;
   let deletedCount = 0;
   let warnings = 0;
   core.info(
     `📦 ${count} cache${count === 1 ? "" : "s"} found for ref "${ref}"`,
   );
-  for (const cache of filteredCaches) {
+  for (const cache of relevantCaches) {
     if (dryRun) {
       core.info(`🧹 Would delete ${formatCache(cache)}`);
       deletedSize += cache.size_in_bytes ?? 0;
@@ -65,6 +64,32 @@ async function getCachesForRef(
     page++;
   }
   return caches;
+}
+
+function filterCaches(
+  caches: Cache[],
+  keyFilter: string,
+  maxAgeMs: number | undefined,
+): Cache[] {
+  const filteredCaches = keyFilter
+    ? caches.filter((cache) => matchesKeyFilter(cache.key ?? "", keyFilter))
+    : caches;
+  const cutoff = maxAgeMs === undefined ? undefined : Date.now() - maxAgeMs;
+  const relevantCaches =
+    cutoff === undefined
+      ? filteredCaches
+      : filteredCaches.filter((cache) => cacheCreated(cache) < cutoff);
+  const keptCount = filteredCaches.length - relevantCaches.length;
+  if (keptCount > 0) {
+    core.info(
+      `🗄️ Kept ${keptCount} cache${keptCount === 1 ? "" : "s"} with age below max-age.`,
+    );
+  }
+  return relevantCaches;
+}
+
+function cacheCreated(cache: Cache): number {
+  return new Date(cache.last_accessed_at ?? cache.created_at ?? "").getTime();
 }
 
 function formatCache(cache: Cache): string {

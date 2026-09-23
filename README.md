@@ -12,6 +12,7 @@ A GitHub Action to delete all caches associated with a specific branch reference
 - Deletes all GitHub Actions caches for a given branch (`ref`)
 - Supports dry-run mode to preview cache deletions without deleting them
 - Supports filtering caches by key glob pattern (e.g. only delete caches with key prefix `npm-`)
+- Supports age-based pruning of stale caches (e.g. only delete caches older than 7 days)
 
 ## Usage
 
@@ -43,6 +44,7 @@ This is required to allow the action to delete caches.
 | fail-on-warning | Fail the action if a warning occurs during cache deletion                                             | false    | `false`               |
 | dry-run         | List the caches that would be deleted without deleting them                                           | false    | `false`               |
 | key-filter      | Only delete caches whose key matches the glob pattern (e.g. `npm-*`), combined with `ref`             | false    | `""`                  |
+| max-age         | Only delete caches older than the given duration (e.g. `7d`, `24h`, `30m`), combined with `ref`       | false    | `""`                  |
 
 #### Notes
 
@@ -91,6 +93,16 @@ Matching rules:
 
 ```yaml
 key-filter: "npm-*"
+```
+
+### Input options for `max-age`
+
+The `max-age` input is optional. When set, only caches whose age exceeds the given duration are deleted (or listed with `dry-run`). The age is determined by `last_accessed_at`, falling back to `created_at`. Caches below the age threshold are kept and reported separately.
+
+Duration format: a number followed by `m` (minutes), `h` (hours) or `d` (days). Invalid values fail the action with an error.
+
+```yaml
+max-age: "7d"
 ```
 
 ## Example Workflow

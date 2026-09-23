@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import { parseRefs } from "./parseRefs";
+import { parseMaxAge } from "./maxAge";
 
 export function parseInputs() {
   const token = core.getInput("github-token", { required: true });
@@ -7,6 +8,7 @@ export function parseInputs() {
   const failOnWarning = core.getInput("fail-on-warning") === "true";
   const dryRun = core.getInput("dry-run") === "true";
   const keyFilter = core.getInput("key-filter");
+  const maxAge = parseMaxAge(core.getInput("max-age"));
 
   return {
     token,
@@ -14,5 +16,6 @@ export function parseInputs() {
     failOnWarning,
     dryRun,
     keyFilter,
+    maxAge,
   };
 }
