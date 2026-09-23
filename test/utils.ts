@@ -29,12 +29,17 @@ export function setupOctokitMocks(
 export function makeActionsMocks(caches: CacheEntry[]) {
   const getActionsCacheList = vi
     .fn()
-    .mockImplementation(async ({ page = 1 }: { page?: number } = {}) => ({
-      data: {
-        total_count: caches.length,
-        actions_caches: caches.slice((page - 1) * 100, page * 100),
-      },
-    }));
+    .mockImplementation(
+      async ({
+        page = 1,
+        per_page = 30,
+      }: { page?: number; per_page?: number } = {}) => ({
+        data: {
+          total_count: caches.length,
+          actions_caches: caches.slice((page - 1) * per_page, page * per_page),
+        },
+      }),
+    );
   const deleteActionsCacheById = vi.fn().mockResolvedValue({});
 
   return { getActionsCacheList, deleteActionsCacheById };

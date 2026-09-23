@@ -53,6 +53,26 @@ describe("pagination", () => {
     await main();
 
     expect(getActionsCacheList).toHaveBeenCalledTimes(2);
+    expect(getActionsCacheList).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+        per_page: 100,
+        page: 1,
+      }),
+    );
+    expect(getActionsCacheList).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        owner: "test-owner",
+        repo: "test-repo",
+        ref: "refs/heads/main",
+        per_page: 100,
+        page: 2,
+      }),
+    );
     expect(deleteActionsCacheById).toHaveBeenCalledTimes(130);
     expect(core.info).toHaveBeenCalledWith(
       "✅ Deleted 130 caches with a total size of 12.7 KB.",
