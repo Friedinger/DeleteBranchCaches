@@ -12,6 +12,7 @@ export interface DeleteRefResult {
   size: number;
   count: number;
   warnings: number;
+  found: number;
 }
 
 export async function deleteCachesForRef(
@@ -42,7 +43,7 @@ export async function deleteCachesForRef(
     deletedSize += size;
     if (warning) warnings++;
   }
-  return { size: deletedSize, count: deletedCount, warnings };
+  return { size: deletedSize, count: deletedCount, warnings, found: count };
 }
 
 async function getCachesForRef(

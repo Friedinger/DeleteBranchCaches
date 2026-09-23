@@ -133,6 +133,19 @@ jobs:
           fail-on-warning: true
 ```
 
+## Output
+
+The action writes a step summary (visible in the GitHub Actions UI) with a table per ref:
+
+| Ref         | Found | Deleted | Freed  |
+| ----------- | ----- | ------- | ------ |
+| feature/xyz | 12    | 12      | 2.3 MB |
+| **Total**   | 12    | 12      | 2.3 MB |
+
+Repo cache usage: 4.1 GB / 10 GB
+
+In dry-run mode the table shows what _would_ be deleted.
+
 ## Development
 
 Build the action:
