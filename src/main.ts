@@ -6,7 +6,7 @@ import { parseInputs } from "./inputs";
 import packageJson from "../package.json";
 
 export async function main(): Promise<void> {
-  const { token, refs, failOnWarning, dryRun } = parseInputs();
+  const { token, refs, failOnWarning, dryRun, keyFilter } = parseInputs();
   const octokit = new Octokit({ auth: token });
   core.info(`🛠️ Running Friedinger/DeleteBranchCaches@v${packageJson.version}`);
 
@@ -17,6 +17,7 @@ export async function main(): Promise<void> {
     const { size, count, warnings } = await deleteCachesForRef(
       ref,
       dryRun,
+      keyFilter,
       octokit,
     );
     deletedSize += size;

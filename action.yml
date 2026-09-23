@@ -22,6 +22,10 @@ inputs:
     description: List the caches that would be deleted without deleting them
     required: false
     default: "false"
+  key-filter:
+    description: Only delete caches whose key matches the given glob pattern (e.g. 'npm-*'), combined with ref
+    required: false
+    default: ""
 
 runs:
   using: "node24"
