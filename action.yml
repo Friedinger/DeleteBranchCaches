@@ -18,6 +18,10 @@ inputs:
     description: Fail the action if a warning occurs during cache deletion
     required: false
     default: "false"
+  dry-run:
+    description: List the caches that would be deleted without deleting them
+    required: false
+    default: "false"
 
 runs:
   using: "node24"

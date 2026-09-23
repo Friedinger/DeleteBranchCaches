@@ -32,7 +32,6 @@ describe("error handling", () => {
   });
 
   afterEach(() => {
-    vi.resetModules();
     vi.resetAllMocks();
   });
 

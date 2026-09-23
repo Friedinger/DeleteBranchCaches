@@ -20,7 +20,7 @@ vi.mock("../package.json", () => ({
   },
 }));
 
-describe("delete caches", () => {
+describe("dry-run mode", () => {
   let core: typeof CoreType;
   let octokit: typeof Octokit;
 
@@ -35,32 +35,7 @@ describe("delete caches", () => {
     vi.resetAllMocks();
   });
 
-  it("calls delete for single cache and reports size", async () => {
-    const { getActionsCacheList, deleteActionsCacheById } = setupOctokitMocks(
-      octokit,
-      [{ id: 1, size_in_bytes: 123 }],
-    );
-
-    vi.spyOn(core, "getInput").mockImplementation((name: string) => {
-      if (name === "ref") return "refs/heads/main";
-      return "";
-    });
-
-    await main();
-
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
-
-    expect(deleteActionsCacheById).toHaveBeenCalledTimes(1);
-    expect(core.info).toHaveBeenCalledWith(
-      "✅ Deleted 1 cache with a total size of 123 B.",
-    );
-  });
-
-  it("calls delete for multiple caches and reports sizes", async () => {
+  it("lists all caches and does not delete them in dry-run", async () => {
     const { getActionsCacheList, deleteActionsCacheById } = setupOctokitMocks(
       octokit,
       [
@@ -71,6 +46,7 @@ describe("delete caches", () => {
 
     vi.spyOn(core, "getInput").mockImplementation((name: string) => {
       if (name === "ref") return "refs/heads/main";
+      if (name === "dry-run") return "true";
       return "";
     });
 
@@ -82,35 +58,37 @@ describe("delete caches", () => {
       ref: "refs/heads/main",
     });
 
-    expect(deleteActionsCacheById).toHaveBeenCalledTimes(2);
+    expect(deleteActionsCacheById).not.toHaveBeenCalled();
+
     expect(core.info).toHaveBeenCalledWith(
-      "✅ Deleted 2 caches with a total size of 300 B.",
+      expect.stringContaining("🧹 Would delete cache 1"),
+    );
+    expect(core.info).toHaveBeenCalledWith(
+      expect.stringContaining("🧹 Would delete cache 2"),
+    );
+    expect(core.info).toHaveBeenCalledWith(
+      "🚫 Dry run: would delete 2 caches with a total size of 300 B.",
     );
   });
 
-  it("uses fallback 0 when cache.size_in_bytes is undefined", async () => {
+  it("uses fallback 0 when cache.size_in_bytes is undefined in dry-run", async () => {
     const { getActionsCacheList, deleteActionsCacheById } = setupOctokitMocks(
       octokit,
-      [{ id: 1 }, { id: 2, size_in_bytes: 200 }],
+      [{ id: 1, size_in_bytes: 100 }, { id: 2 }],
     );
 
     vi.spyOn(core, "getInput").mockImplementation((name: string) => {
       if (name === "ref") return "refs/heads/main";
+      if (name === "dry-run") return "true";
       return "";
     });
 
     await main();
 
-    expect(getActionsCacheList).toHaveBeenCalledWith({
-      owner: "test-owner",
-      repo: "test-repo",
-      ref: "refs/heads/main",
-    });
-
-    expect(deleteActionsCacheById).toHaveBeenCalledTimes(2);
-
+    expect(getActionsCacheList).toHaveBeenCalled();
+    expect(deleteActionsCacheById).not.toHaveBeenCalled();
     expect(core.info).toHaveBeenCalledWith(
-      "✅ Deleted 2 caches with a total size of 200 B.",
+      "🚫 Dry run: would delete 2 caches with a total size of 100 B.",
     );
   });
 });
