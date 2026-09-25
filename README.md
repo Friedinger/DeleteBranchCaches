@@ -20,7 +20,7 @@ Add the following step to your workflow:
 
 ```yaml
 - name: Delete branch caches
-  uses: Friedinger/DeleteBranchCaches@v2
+  uses: Friedinger/DeleteBranchCaches@v3
   with:
     github-token: ${{ github.token }}
     ref: ${{ github.ref }}
@@ -126,7 +126,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Delete branch caches
-        uses: Friedinger/DeleteBranchCaches@v2
+        uses: Friedinger/DeleteBranchCaches@v3
         with:
           github-token: ${{ github.token }}
           ref: ${{ github.ref }}
