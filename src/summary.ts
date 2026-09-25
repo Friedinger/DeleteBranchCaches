@@ -26,10 +26,12 @@ export function buildSummary(
   usage: CacheUsage | undefined,
   dryRun: boolean,
 ): string {
+  const deletedLabel = dryRun ? "Would delete" : "Deleted";
+  const freedLabel = dryRun ? "Would free" : "Freed";
   const lines = [
     `### Cache cleanup${dryRun ? " (dry run)" : ""}`,
     "",
-    "| Ref | Found | Deleted | Freed |",
+    `| Ref | Found | ${deletedLabel} | ${freedLabel} |`,
     "|---|---|---|---|",
   ];
   let totalSize = 0;
@@ -41,7 +43,7 @@ export function buildSummary(
     totalFound += result.found;
     totalDeleted += result.count;
     lines.push(
-      `| ${ref} | ${result.found} | ${result.count} | ${formatSize(result.size)} |`,
+      `| ${ref.replaceAll("|", "\\|")} | ${result.found} | ${result.count} | ${formatSize(result.size)} |`,
     );
   });
   lines.push(
@@ -51,15 +53,13 @@ export function buildSummary(
     lines.push(
       "",
       `Repo cache usage: ${formatSize(usage.sizeBytes)} / ${formatSize(CACHE_LIMIT_BYTES)}`,
+      "",
+      "> Notice: The repository cache limit may be higher, and usage data may be delayed.",
     );
   }
   return lines.join("\n");
 }
 
 export async function writeSummary(summary: string): Promise<void> {
-  try {
-    await core.summary.addRaw(summary).write();
-  } catch {
-    // No GITHUB_STEP_SUMMARY available, skip the step summary.
-  }
+  await core.summary.addRaw(summary).write();
 }

@@ -5,6 +5,7 @@ import type { Octokit } from "@octokit/rest";
 import { main } from "../src/main";
 
 vi.mock("@actions/core");
+vi.mock("../src/summary");
 vi.mock("@actions/github", () => ({
   context: {
     repo: {

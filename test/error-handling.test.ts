@@ -3,8 +3,10 @@ import { CacheEntry, setupOctokitMocks } from "./utils";
 import type * as CoreType from "@actions/core";
 import type { Octokit } from "@octokit/rest";
 import { main } from "../src/main";
+import * as summary from "../src/summary";
 
 vi.mock("@actions/core");
+vi.mock("../src/summary");
 vi.mock("@actions/github", () => ({
   context: {
     repo: {
@@ -59,6 +61,23 @@ describe("error handling", () => {
     expect(deleteActionsCacheById).not.toHaveBeenCalled();
     expect(core.warning).toHaveBeenCalledWith(
       `⚠️ Could not delete cache ${undefined}: Error: Missing cache.id`,
+    );
+  });
+
+  it("warns when repo cache usage cannot be fetched", async () => {
+    setupOctokitMocks(octokit, []);
+    vi.mocked(summary.getCacheUsage).mockRejectedValueOnce(
+      new Error("usage failed"),
+    );
+    vi.spyOn(core, "getInput").mockImplementation((name: string) => {
+      if (name === "ref") return "refs/heads/main";
+      return "";
+    });
+
+    await main();
+
+    expect(core.warning).toHaveBeenCalledWith(
+      "⚠️ Could not fetch repo cache usage: Error: usage failed",
     );
   });
 });

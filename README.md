@@ -144,6 +144,8 @@ The action writes a step summary (visible in the GitHub Actions UI) with a table
 
 Repo cache usage: 4.1 GB / 10 GB
 
+> Notice: The repository cache limit may be higher, and usage data may be delayed.
+
 In dry-run mode the table shows what _would_ be deleted.
 
 ## Development

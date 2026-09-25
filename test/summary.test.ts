@@ -34,16 +34,27 @@ describe("buildSummary", () => {
     expect(md).toContain("| feature/b | 1 | 1 | 512 B |");
     expect(md).toContain("| **Total** | 3 | 3 | 1.5 KB |");
     expect(md).toContain("Repo cache usage: 2 KB / 10 GB");
+    expect(
+      md.endsWith(
+        "> Notice: The repository cache limit may be higher, and usage data may be delayed.",
+      ),
+    ).toBe(true);
   });
 
-  it("marks the summary as dry run", () => {
+  it("marks the summary as dry run and labels prospective results", () => {
     const md = buildSummary(["feature/a"], [results[0]], usage, true);
     expect(md).toContain("### Cache cleanup (dry run)");
+    expect(md).toContain("| Ref | Found | Would delete | Would free |");
   });
 
   it("omits usage when unavailable", () => {
     const md = buildSummary(["feature/a"], [results[0]], undefined, false);
     expect(md).not.toContain("Repo cache usage");
+  });
+
+  it("escapes pipe characters in refs", () => {
+    const md = buildSummary(["feature|test"], [results[0]], undefined, false);
+    expect(md).toContain("| feature\\|test | 2 | 2 | 1 KB |");
   });
 });
 
@@ -103,22 +114,22 @@ describe("getCacheUsage", () => {
 
 describe("writeSummary", () => {
   afterEach(() => {
-    vi.unstubAllEnvs();
+    vi.clearAllMocks();
   });
 
-  it("writes the summary via core summary", async () => {
-    vi.stubEnv("GITHUB_STEP_SUMMARY", "/tmp/summary.md");
+  it("writes the summary via core summary without a real summary file", async () => {
     const md = "### Cache cleanup";
     await writeSummary(md);
     expect(core.summary.addRaw).toHaveBeenCalledWith(md);
     expect(core.summary.write).toHaveBeenCalled();
   });
 
-  it("does not fail when the summary is unavailable", async () => {
-    vi.stubEnv("GITHUB_STEP_SUMMARY", undefined);
+  it("propagates write failures", async () => {
     vi.mocked(core.summary.write).mockRejectedValueOnce(
-      new Error("GITHUB_STEP_SUMMARY not set"),
+      new Error("write failed"),
     );
-    await expect(writeSummary("### Cache cleanup")).resolves.toBeUndefined();
+    await expect(writeSummary("### Cache cleanup")).rejects.toThrow(
+      "write failed",
+    );
   });
 });
