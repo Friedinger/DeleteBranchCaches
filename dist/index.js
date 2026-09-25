@@ -46000,7 +46000,7 @@ async function writeSummary(summary) {
 }
 
 ;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {"rE":"2.4.5"};
+const package_namespaceObject = {"rE":"3.0.0"};
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
