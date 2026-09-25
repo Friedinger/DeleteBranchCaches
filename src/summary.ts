@@ -61,5 +61,5 @@ export function buildSummary(
 }
 
 export async function writeSummary(summary: string): Promise<void> {
-  await core.summary.addRaw(summary).write();
+  await core.summary.addRaw(summary, true).write();
 }

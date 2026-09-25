@@ -135,7 +135,7 @@ jobs:
 
 ## Output
 
-The action writes a step summary (visible in the GitHub Actions UI) with a table per ref:
+The action writes a step summary (visible in the GitHub Actions UI) with one row per ref:
 
 | Ref         | Found | Deleted | Freed  |
 | ----------- | ----- | ------- | ------ |

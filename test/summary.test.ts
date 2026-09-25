@@ -120,7 +120,7 @@ describe("writeSummary", () => {
   it("writes the summary via core summary without a real summary file", async () => {
     const md = "### Cache cleanup";
     await writeSummary(md);
-    expect(core.summary.addRaw).toHaveBeenCalledWith(md);
+    expect(core.summary.addRaw).toHaveBeenCalledWith(md, true);
     expect(core.summary.write).toHaveBeenCalled();
   });
 
