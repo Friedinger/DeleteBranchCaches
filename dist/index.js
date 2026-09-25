@@ -39186,7 +39186,7 @@ const _summary = new Summary();
  * @deprecated use `core.summary`
  */
 const markdownSummary = (/* unused pure expression or super */ null && (_summary));
-const summary = (/* unused pure expression or super */ null && (_summary));
+const summary_summary = _summary;
 //# sourceMappingURL=summary.js.map
 ;// CONCATENATED MODULE: ./node_modules/@actions/core/lib/path-utils.js
 
@@ -45842,7 +45842,7 @@ async function deleteCachesForRef(ref, dryRun, keyFilter, maxAgeMs, octokit) {
         if (warning)
             warnings++;
     }
-    return { size: deletedSize, count: deletedCount, warnings };
+    return { size: deletedSize, count: deletedCount, warnings, found: count };
 }
 async function getCachesForRef(ref, octokit) {
     const caches = [];
@@ -45956,9 +45956,53 @@ function parseInputs() {
     };
 }
 
+;// CONCATENATED MODULE: ./src/summary.ts
+
+
+
+const CACHE_LIMIT_BYTES = 10 * 1024 ** 3;
+async function getCacheUsage(octokit) {
+    const { data } = await octokit.rest.actions.getActionsCacheUsage({
+        owner: github_context.repo.owner,
+        repo: github_context.repo.repo,
+    });
+    return {
+        sizeBytes: data.active_caches_size_in_bytes ?? 0,
+    };
+}
+function buildSummary(refs, results, usage, dryRun) {
+    const deletedLabel = dryRun ? "Would delete" : "Deleted";
+    const freedLabel = dryRun ? "Would free" : "Freed";
+    const lines = [
+        `### Cache cleanup${dryRun ? " (dry run)" : ""}`,
+        "",
+        `| Ref | Found | ${deletedLabel} | ${freedLabel} |`,
+        "|---|---|---|---|",
+    ];
+    let totalSize = 0;
+    let totalFound = 0;
+    let totalDeleted = 0;
+    refs.forEach((ref, i) => {
+        const result = results[i];
+        totalSize += result.size;
+        totalFound += result.found;
+        totalDeleted += result.count;
+        lines.push(`| ${ref.replaceAll("|", "\\|")} | ${result.found} | ${result.count} | ${formatSize(result.size)} |`);
+    });
+    lines.push(`| **Total** | ${totalFound} | ${totalDeleted} | ${formatSize(totalSize)} |`);
+    if (usage !== undefined) {
+        lines.push("", `Repo cache usage: ${formatSize(usage.sizeBytes)} / ${formatSize(CACHE_LIMIT_BYTES)}`, "", "> Notice: The repository cache limit may be higher, and usage data may be delayed.");
+    }
+    return lines.join("\n");
+}
+async function writeSummary(summary) {
+    await summary_summary.addRaw(summary, true).write();
+}
+
 ;// CONCATENATED MODULE: ./package.json
 const package_namespaceObject = {"rE":"2.4.5"};
 ;// CONCATENATED MODULE: ./src/main.ts
+
 
 
 
@@ -45969,16 +46013,26 @@ async function main() {
     const { token, refs, failOnWarning, dryRun, keyFilter, maxAge } = parseInputs();
     const octokit = new dist_src_Octokit({ auth: token });
     info(`🛠️ Running Friedinger/DeleteBranchCaches@v${package_namespaceObject.rE}`);
+    const results = [];
     let deletedSize = 0;
     let totalCaches = 0;
     let warningsCount = 0;
     for (const ref of refs) {
-        const { size, count, warnings } = await deleteCachesForRef(ref, dryRun, keyFilter, maxAge, octokit);
-        deletedSize += size;
-        totalCaches += count;
-        warningsCount += warnings;
+        const result = await deleteCachesForRef(ref, dryRun, keyFilter, maxAge, octokit);
+        results.push(result);
+        deletedSize += result.size;
+        totalCaches += result.count;
+        warningsCount += result.warnings;
     }
     info(`${dryRun ? "🚫 Dry run: would delete" : "✅ Deleted"} ${totalCaches} cache${totalCaches === 1 ? "" : "s"} with a total size of ${formatSize(deletedSize)}.`);
+    let usage;
+    try {
+        usage = await getCacheUsage(octokit);
+    }
+    catch (error) {
+        warning(`⚠️ Could not fetch repo cache usage: ${error}`);
+    }
+    await writeSummary(buildSummary(refs, results, usage, dryRun));
     if (failOnWarning && warningsCount > 0) {
         setFailed("⚠️ Action failed due to warning(s).");
     }
